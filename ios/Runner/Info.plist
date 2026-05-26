@@ -66,5 +66,14 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>O Vehicle Tracker precisa do seu GPS para calcular a velocidade e registar o trajeto da sua viagem em tempo real.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>O IonDrive precisa do seu GPS para rastrear as viagens mesmo se o app for minimizado.</string>
+
+    <key>NSCameraUsageDescription</key>
+    <string>O IonDrive precisa acessar sua câmera para você tirar fotos dos recibos de abastecimento e odômetro.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>O IonDrive precisa acessar sua galeria para você selecionar fotos de recibos salvos no dispositivo.</string>
 </dict>
 </plist>
