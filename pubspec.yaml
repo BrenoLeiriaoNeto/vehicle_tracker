@@ -23,6 +23,8 @@ dependencies:
   geolocator: ^14.0.2
   image_picker: ^1.2.2
 
+  equatable: ^2.0.8
+
   dio: ^5.9.2
 
 dev_dependencies:
