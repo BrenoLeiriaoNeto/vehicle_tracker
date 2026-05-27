@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "69532289664",
+    "project_id": "vehicle-tracker-breno",
+    "storage_bucket": "vehicle-tracker-breno.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:69532289664:android:e6bd355dd3f1789c117465",
+        "android_client_info": {
+          "package_name": "com.example.vehicle_tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBp_H7VocTAAYcR9gkf65E6sw0FPW18ODQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
