@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:vehicle_tracker/src/core/core_exports.dart';
-import 'package:vehicle_tracker/src/features/garage/data_exports.dart';
+import 'package:vehicle_tracker/src/features/garage/garage_data_exports.dart';
 
 class FipeDataSource implements IFipeDataSource {
   final HttpClient _httpClient;

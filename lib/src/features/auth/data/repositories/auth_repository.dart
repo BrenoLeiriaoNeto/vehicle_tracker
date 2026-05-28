@@ -1,0 +1,51 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vehicle_tracker/src/core/errors/auth_failures.dart';
+import 'package:vehicle_tracker/src/features/auth/auth_domain_exports.dart';
+
+class AuthRepository implements IAuthRepository {
+  final FirebaseAuth _firebaseAuth;
+
+  AuthRepository(this._firebaseAuth);
+
+  @override
+  Future<User?> getCurrentUser() async {
+    return _firebaseAuth.currentUser;
+  }
+
+  @override
+  Future<UserCredential> loginWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'user-not-found':
+          throw const UserNotFoundFailure();
+        case 'wrong-password':
+          throw const WrongPasswordFailure();
+        case 'invalid-email':
+          throw const InvalidEmailFailure();
+        case 'network-request-failed':
+          throw const ServerFailure(
+            'Sem conexão com a internet. Verifique sua rede.',
+          );
+        default:
+          throw UnknownAuthFailure(e.message!);
+      }
+    } catch (e) {
+      throw UnknownAuthFailure();
+    }
+  }
+
+  @override
+  Future<void> logout() async {
+    await _firebaseAuth.signOut();
+  }
+}

@@ -1,4 +1,4 @@
-import 'package:vehicle_tracker/src/features/garage/domain_exports.dart';
+import 'package:vehicle_tracker/src/features/garage/garage_domain_exports.dart';
 
 class BrandModel extends BrandEntity {
   const BrandModel({required super.id, required super.name});

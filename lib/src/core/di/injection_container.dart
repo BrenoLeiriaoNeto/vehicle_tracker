@@ -1,8 +1,8 @@
 import 'package:get_it/get_it.dart';
 
 import '../../core/core_exports.dart';
-import '../../features/garage/data_exports.dart';
-import '../../features/garage/domain_exports.dart';
+import '../../features/garage/garage_data_exports.dart';
+import '../../features/garage/garage_domain_exports.dart';
 import '../../features/garage/presentation/controllers/garage_controller.dart';
 
 final sl = GetIt.instance;

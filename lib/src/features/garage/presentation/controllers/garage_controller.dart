@@ -1,5 +1,5 @@
 import 'package:ionex/ionex.dart';
-import 'package:vehicle_tracker/src/features/garage/domain_exports.dart';
+import 'package:vehicle_tracker/src/features/garage/garage_domain_exports.dart';
 import 'package:vehicle_tracker/src/features/garage/state/garage_state.dart';
 
 class GarageController {
