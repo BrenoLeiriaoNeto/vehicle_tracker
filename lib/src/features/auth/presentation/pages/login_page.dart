@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vehicle_tracker/src/core/core_exports.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -81,14 +82,12 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const Spacer(flex: 2),
 
-                    TextFormField(
+                    CustomTextFormField(
                       controller: _emailController,
-                      keyboardType: .emailAddress,
-                      textInputAction: .next,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.email_outlined),
-                      ),
+                      labelText: 'Email',
+                      prefixIcon: Icons.email_outlined,
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Por favor, insira seu e-mail';
@@ -102,27 +101,23 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 20),
 
-                    TextFormField(
+                    CustomTextFormField(
                       controller: _passwordController,
+                      labelText: 'Senha',
+                      prefixIcon: Icons.lock_outline,
                       obscureText: _obscurePassword,
                       textInputAction: .done,
                       onFieldSubmitted: (_) => _submit(),
-                      decoration: InputDecoration(
-                        labelText: 'Senha',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            color: Colors.white54,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: Colors.white54,
                         ),
+                        onPressed: () {
+                          setState(() => _obscurePassword = !_obscurePassword);
+                        },
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -151,7 +146,8 @@ class _LoginPageState extends State<LoginPage> {
                           style: TextStyle(color: Colors.white54),
                         ),
                         TextButton(
-                          onPressed: () {},
+                          onPressed:
+                              () {}, // TODO: Navegar para a página de cadastro
                           child: Text(
                             'Cadastre-se',
                             style: TextStyle(
