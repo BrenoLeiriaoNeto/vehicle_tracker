@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vehicle_tracker/src/core/theme/app_theme.dart';
 
 class VehicleTrackerApp extends StatelessWidget {
   const VehicleTrackerApp({super.key});
@@ -8,37 +9,8 @@ class VehicleTrackerApp extends StatelessWidget {
     return MaterialApp(
       title: 'Vehicle Tracker',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: .fromSeed(
-          seedColor: const Color(0xFF1E1E2C),
-          brightness: .dark,
-        ),
-        useMaterial3: true,
-      ),
-      home: const Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: .center,
-            children: [
-              Icon(
-                Icons.directions_car_filled,
-                size: 64,
-                color: Colors.greenAccent,
-              ),
-              SizedBox(height: 16),
-              Text(
-                "Vehicle Tracker 🏎️",
-                style: TextStyle(fontSize: 24, fontWeight: .bold),
-              ),
-              SizedBox(height: 8),
-              Text(
-                "Motor do Firebase roncando!",
-                style: TextStyle(color: Colors.grey),
-              ),
-            ],
-          ),
-        ),
-      ),
+      theme: AppTheme.darkTheme,
+      home: Container(),
     );
   }
 }
