@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:ionex/ionex.dart';
 import 'package:vehicle_tracker/src/core/core_exports.dart';
+import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:vehicle_tracker/src/features/auth/presentation/state/auth_state.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final VoidCallback onFlip;
+
+  const LoginPage({super.key, required this.onFlip});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -21,20 +26,22 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _submit() {
+  void _submit(AuthController authController) {
     if (_formKey.currentState!.validate()) {
       // TODO: Próximo passo -> Chamar o controller de Auth via ionex
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
-      debugPrint('Tentando logar com: $email');
+
+      authController.login(email, password);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     final mediaQuery = MediaQuery.of(context);
+
+    final authController = IonProvider.of<AuthState>(context) as AuthController;
 
     return Scaffold(
       body: SafeArea(
@@ -48,119 +55,156 @@ class _LoginPageState extends State<LoginPage> {
                   mediaQuery.padding.bottom,
             ),
             child: IntrinsicHeight(
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: .stretch,
-                  children: [
-                    const Spacer(flex: 2),
-                    Column(
+              child: IonBuilder(
+                ion: authController,
+                builder: (context, state) {
+                  if (state.status == .error && state.errorMessage != null) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.errorMessage!),
+                          backgroundColor: theme.colorScheme.error,
+                        ),
+                      );
+                    });
+                  }
+                  if (state.status == .authenticated) {
+                    // TODO: Navigator.pushReplacement para DashboardPage
+                  }
+
+                  return Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: .stretch,
                       children: [
-                        Icon(
-                          Icons.local_shipping_outlined,
-                          size: 80,
-                          color: theme.colorScheme.primary,
+                        const Spacer(flex: 2),
+                        Column(
+                          children: [
+                            Icon(
+                              Icons.local_shipping_outlined,
+                              size: 80,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Vehicle Tracker',
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                fontWeight: .bold,
+                                letterSpacing: 1.2,
+                              ),
+                              textAlign: .center,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Gerencia sua frota na velocidade da luz.',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: Colors.white54,
+                              ),
+                              textAlign: .center,
+                            ),
+                          ],
+                        ),
+                        const Spacer(flex: 2),
+
+                        CustomTextFormField(
+                          controller: _emailController,
+                          labelText: 'Email',
+                          prefixIcon: Icons.email_outlined,
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor, insira seu e-mail';
+                            }
+                            if (!value.contains('@')) {
+                              return 'Por favor, insira um e-mail válido';
+                            }
+                            return null;
+                          },
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        CustomTextFormField(
+                          controller: _passwordController,
+                          labelText: 'Senha',
+                          prefixIcon: Icons.lock_outline,
+                          obscureText: _obscurePassword,
+                          textInputAction: .done,
+                          onFieldSubmitted: (_) => _submit(authController),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              color: Colors.white54,
+                            ),
+                            onPressed: () {
+                              setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              );
+                            },
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor, insira sua senha';
+                            }
+                            if (value.length < 6) {
+                              return 'A senha deve ter pelo menos 6 caracteres';
+                            }
+                            return null;
+                          },
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        IonBuilder(
+                          ion: authController,
+                          builder: (context, state) {
+                            return ElevatedButton(
+                              onPressed: state.status == .loading
+                                  ? null
+                                  : () => _submit(authController),
+                              child: state.status == .loading
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Text('Entrar'),
+                            );
+                          },
+                        ),
+
+                        const Spacer(flex: 3),
+
+                        Row(
+                          mainAxisAlignment: .center,
+                          children: [
+                            const Text(
+                              'Não tem uma conta?',
+                              style: TextStyle(color: Colors.white54),
+                            ),
+                            TextButton(
+                              onPressed: widget.onFlip,
+                              child: Text(
+                                'Cadastre-se',
+                                style: TextStyle(
+                                  color: theme.colorScheme.primary,
+                                  fontWeight: .bold,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                          'Vehicle Tracker',
-                          style: theme.textTheme.headlineMedium?.copyWith(
-                            fontWeight: .bold,
-                            letterSpacing: 1.2,
-                          ),
-                          textAlign: .center,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Gerencia sua frota na velocidade da luz.',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.white54,
-                          ),
-                          textAlign: .center,
-                        ),
                       ],
                     ),
-                    const Spacer(flex: 2),
-
-                    CustomTextFormField(
-                      controller: _emailController,
-                      labelText: 'Email',
-                      prefixIcon: Icons.email_outlined,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor, insira seu e-mail';
-                        }
-                        if (!value.contains('@')) {
-                          return 'Por favor, insira um e-mail válido';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    CustomTextFormField(
-                      controller: _passwordController,
-                      labelText: 'Senha',
-                      prefixIcon: Icons.lock_outline,
-                      obscureText: _obscurePassword,
-                      textInputAction: .done,
-                      onFieldSubmitted: (_) => _submit(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          color: Colors.white54,
-                        ),
-                        onPressed: () {
-                          setState(() => _obscurePassword = !_obscurePassword);
-                        },
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor, insira sua senha';
-                        }
-                        if (value.length < 6) {
-                          return 'A senha deve ter pelo menos 6 caracteres';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    ElevatedButton(
-                      onPressed: _submit,
-                      child: const Text('Entrar'),
-                    ),
-                    const Spacer(flex: 3),
-
-                    Row(
-                      mainAxisAlignment: .center,
-                      children: [
-                        const Text(
-                          'Não tem uma conta?',
-                          style: TextStyle(color: Colors.white54),
-                        ),
-                        TextButton(
-                          onPressed:
-                              () {}, // TODO: Navegar para a página de cadastro
-                          child: Text(
-                            'Cadastre-se',
-                            style: TextStyle(
-                              color: theme.colorScheme.primary,
-                              fontWeight: .bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ),
