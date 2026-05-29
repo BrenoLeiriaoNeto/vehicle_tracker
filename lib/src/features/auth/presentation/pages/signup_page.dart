@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:ionex/ionex.dart';
 import 'package:vehicle_tracker/src/core/core_exports.dart';
+import 'package:vehicle_tracker/src/core/di/injection_container.dart';
+import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:vehicle_tracker/src/features/auth/presentation/controllers/signup_controller.dart';
+import 'package:vehicle_tracker/src/features/auth/presentation/state/auth_state.dart';
+import 'package:vehicle_tracker/src/features/auth/presentation/state/signup_state.dart';
 
 class SignupPage extends StatefulWidget {
   final VoidCallback onFlip;
@@ -12,22 +18,49 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _signupController = sl<SignupController>();
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _signupController.addListener(_onSignUpStateChanged);
+  }
 
   @override
   void dispose() {
+    _signupController.removeListener(_onSignUpStateChanged);
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _signupController.dispose();
     super.dispose();
   }
 
-  void _submit() {
+  void _onSignUpStateChanged() {
+    final state = _signupController.state;
+
+    if (state.status == .success) {
+      final authController =
+          IonProvider.of<AuthState>(context) as AuthController;
+      authController.setAuthenticatedUser(state.createdUser);
+    }
+  }
+
+  void _submit(SignupController signupController) {
     if (_formKey.currentState!.validate()) {
-      // TODO: Chamar método de criar na AuthController
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+      final name = _nameController.text.trim();
+
+      signupController.signUp(email, password, name);
     }
   }
 
@@ -57,14 +90,31 @@ class _SignupPageState extends State<SignupPage> {
                 const SizedBox(height: 40),
 
                 CustomTextFormField(
+                  controller: _nameController,
+                  labelText: 'Nome',
+                  prefixIcon: Icons.person,
+                  keyboardType: .text,
+                  textInputAction: .next,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Insira um nome';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                CustomTextFormField(
                   controller: _emailController,
                   labelText: 'E-mail',
                   prefixIcon: Icons.email_outlined,
                   keyboardType: .emailAddress,
                   textInputAction: .next,
                   validator: (value) {
-                    if (value == null || value.isEmpty)
+                    if (value == null || value.isEmpty) {
                       return 'Insira um e-mail';
+                    }
                     if (!value.contains('@')) return 'E-mail inválido';
                     return null;
                   },
@@ -77,9 +127,23 @@ class _SignupPageState extends State<SignupPage> {
                   prefixIcon: Icons.lock_outline,
                   obscureText: _obscurePassword,
                   textInputAction: .next,
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        () => _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: Colors.white54,
+                    ),
+                  ),
                   validator: (value) {
-                    if (value == null || value.isEmpty)
+                    if (value == null || value.isEmpty) {
                       return 'Insira uma senha';
+                    }
                     if (value.length < 6) return 'Mínimo de 6 caractéres';
                     return null;
                   },
@@ -92,7 +156,21 @@ class _SignupPageState extends State<SignupPage> {
                   prefixIcon: Icons.lock_clock_outlined,
                   obscureText: _obscurePassword,
                   textInputAction: .done,
-                  onFieldSubmitted: (_) => _submit(),
+                  onFieldSubmitted: (_) => _submit(_signupController),
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        () =>
+                            _obscureConfirmPassword = !_obscureConfirmPassword;
+                      });
+                    },
+                    icon: Icon(
+                      _obscureConfirmPassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: Colors.white54,
+                    ),
+                  ),
                   validator: (value) {
                     if (value != _passwordController.text) {
                       return 'As senhas não coincidem';
@@ -103,9 +181,25 @@ class _SignupPageState extends State<SignupPage> {
 
                 const SizedBox(height: 24),
 
-                ElevatedButton(
-                  onPressed: _submit,
-                  child: const Text('Cadastrar'),
+                IonBuilder<SignupState>(
+                  ion: _signupController,
+                  builder: (context, state) {
+                    return ElevatedButton(
+                      onPressed: state.status == .loading
+                          ? null
+                          : () => _submit(_signupController),
+                      child: state.status == .loading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text('Cadastrar'),
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 24),

@@ -25,6 +25,14 @@ class ServerFailure extends AuthFailure {
   const ServerFailure([super.message = 'Erro de conexão com o servidor']);
 }
 
+class EmailAlreadyExistsFailure extends AuthFailure {
+  const EmailAlreadyExistsFailure() : super('Este e-mail ja esta cadastrado');
+}
+
+class WeakPasswordFailure extends AuthFailure {
+  const WeakPasswordFailure() : super('Senha muito fraca');
+}
+
 class UnknownAuthFailure extends AuthFailure {
   const UnknownAuthFailure([
     super.message = 'Ocorreu um erro inesperado na autenticação.',

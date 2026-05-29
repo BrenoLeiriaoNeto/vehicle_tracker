@@ -28,7 +28,6 @@ class _LoginPageState extends State<LoginPage> {
 
   void _submit(AuthController authController) {
     if (_formKey.currentState!.validate()) {
-      // TODO: Próximo passo -> Chamar o controller de Auth via ionex
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
 
@@ -110,8 +109,8 @@ class _LoginPageState extends State<LoginPage> {
                           controller: _emailController,
                           labelText: 'Email',
                           prefixIcon: Icons.email_outlined,
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
+                          keyboardType: .emailAddress,
+                          textInputAction: .next,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Por favor, insira seu e-mail';

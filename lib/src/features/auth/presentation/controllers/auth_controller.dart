@@ -38,6 +38,10 @@ class AuthController extends Ion<AuthState> {
     }
   }
 
+  void setAuthenticatedUser(dynamic user) {
+    set(state.copyWith(status: .authenticated, user: user));
+  }
+
   void logout() {
     set(AuthState(status: .unauthenticated));
   }
