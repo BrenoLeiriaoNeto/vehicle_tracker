@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vehicle_tracker/src/features/auth/auth_domain_exports.dart';
 
 class LoginWithEmailPasswordUsecase {
@@ -6,7 +5,7 @@ class LoginWithEmailPasswordUsecase {
 
   LoginWithEmailPasswordUsecase(this._repository);
 
-  Future<UserCredential> call({
+  Future<UserEntity> call({
     required String email,
     required String password,
   }) async {

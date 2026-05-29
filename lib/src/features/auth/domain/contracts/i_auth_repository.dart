@@ -1,8 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vehicle_tracker/src/features/auth/auth_domain_exports.dart';
 
 abstract class IAuthRepository {
-  Future<UserCredential> loginWithEmailAndPassword({
+  Future<UserEntity> loginWithEmailAndPassword({
     required String email,
     required String password,
   });
@@ -15,5 +14,5 @@ abstract class IAuthRepository {
 
   Future<void> logout();
 
-  Future<User?> getCurrentUser();
+  Future<UserEntity?> getCurrentUser(String id);
 }

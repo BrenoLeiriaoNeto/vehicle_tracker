@@ -22,7 +22,7 @@ class AuthController extends Ion<AuthState> {
       set(
         state.copyWith(
           status: .authenticated,
-          user: userCredential.user,
+          user: userCredential,
           errorMessage: null,
         ),
       );
@@ -38,7 +38,7 @@ class AuthController extends Ion<AuthState> {
     }
   }
 
-  void setAuthenticatedUser(dynamic user) {
+  void setAuthenticatedUser(UserEntity user) {
     set(state.copyWith(status: .authenticated, user: user));
   }
 

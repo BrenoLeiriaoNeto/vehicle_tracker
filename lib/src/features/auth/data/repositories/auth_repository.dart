@@ -11,22 +11,46 @@ class AuthRepository implements IAuthRepository {
   AuthRepository(this._firebaseAuth, this._firestore);
 
   @override
-  Future<User?> getCurrentUser() async {
-    return _firebaseAuth.currentUser;
+  Future<UserEntity?> getCurrentUser(String id) async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(id).get();
+
+      return UserModel.fromJson(userDoc.data()!, userDoc.id);
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'user-not-found':
+          throw const UserNotFoundFailure();
+        case 'network-request-failed':
+          throw const ServerFailure(
+            'Sem conexão com a internet. Verifique sua rede.',
+          );
+        default:
+          throw UnknownAuthFailure(e.message!);
+      }
+    } catch (_) {
+      throw UnknownAuthFailure();
+    }
   }
 
   @override
-  Future<UserCredential> loginWithEmailAndPassword({
+  Future<UserEntity> loginWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
     try {
-      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+      final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      return userCredential;
+      if (credential.user == null) throw const UnknownAuthFailure();
+
+      final userDoc = await _firestore
+          .collection('users')
+          .doc(credential.user!.uid)
+          .get();
+
+      return UserModel.fromJson(userDoc.data()!, userDoc.id);
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case 'user-not-found':
