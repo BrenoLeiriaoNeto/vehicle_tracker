@@ -67,9 +67,6 @@ class _LoginPageState extends State<LoginPage> {
                       );
                     });
                   }
-                  if (state.status == .authenticated) {
-                    // TODO: Navigator.pushReplacement para DashboardPage
-                  }
 
                   return Form(
                     key: _formKey,

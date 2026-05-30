@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:vehicle_tracker/src/features/auth/auth_data_exports.dart';
 import 'package:vehicle_tracker/src/features/auth/auth_domain_exports.dart';
+import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/signup_controller.dart';
 
 import '../../core/core_exports.dart';
@@ -23,6 +24,9 @@ Future<void> initDependencies() async {
   // ===========================================================================
   // 🔑 FEATURE - AUTH
   // ===========================================================================
+  sl.registerLazySingleton<AuthController>(
+    () => AuthController(sl<LoginWithEmailPasswordUsecase>()),
+  );
   sl.registerLazySingleton<IAuthRepository>(
     () => AuthRepository(sl<FirebaseAuth>(), sl<FirebaseFirestore>()),
   );
