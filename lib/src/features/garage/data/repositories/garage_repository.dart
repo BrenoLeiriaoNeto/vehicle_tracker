@@ -1,5 +1,5 @@
-import 'package:vehicle_tracker/src/features/garage/data_exports.dart';
-import 'package:vehicle_tracker/src/features/garage/domain_exports.dart';
+import 'package:vehicle_tracker/src/features/garage/garage_data_exports.dart';
+import 'package:vehicle_tracker/src/features/garage/garage_domain_exports.dart';
 
 class GarageRepository implements IGarageRepository {
   final IFipeDataSource _dataSource;
