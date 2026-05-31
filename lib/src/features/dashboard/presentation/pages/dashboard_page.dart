@@ -1,49 +1,208 @@
 import 'package:flutter/material.dart';
 import 'package:ionex/ionex.dart';
+import 'package:vehicle_tracker/src/core/di/injection_container.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/state/auth_state.dart';
+import 'package:vehicle_tracker/src/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:vehicle_tracker/src/features/dashboard/presentation/state/weather_state.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  late final DashboardController _dashboardController;
+
+  @override
+  void initState() {
+    super.initState();
+    _dashboardController = sl<DashboardController>();
+
+    _dashboardController.fetchWeather();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('Rastreador de veículos'),
-        backgroundColor: theme.colorScheme.primary,
+        title: const Text(
+          'Rastreador de veículos',
+          style: TextStyle(fontWeight: .bold, fontSize: 20),
+        ),
+        backgroundColor: colors.surface,
+        elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: () {
+              final authController =
+                  IonProvider.of<AuthState>(context) as AuthController;
+              authController.logout();
+            },
+            icon: const Icon(
+              Icons.power_settings_new,
+              color: Colors.redAccent,
+              size: 28,
+            ),
+            tooltip: 'Sair',
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: .center,
-          children: [
-            Text(
-              'Painel de controle 📊',
-              style: theme.textTheme.headlineMedium?.copyWith(
-                fontWeight: .bold,
+      body: RefreshIndicator(
+        color: colors.primary,
+        onRefresh: () => _dashboardController.fetchWeather(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: .start,
+            children: [
+              Text(
+                'Painel de controle 📊',
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: .w900,
+                  color: colors.primary,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            const Text('O coração do vehicle tracker acordou'),
-            const SizedBox(height: 24),
+              const SizedBox(height: 12),
 
-            ElevatedButton.icon(
-              onPressed: () {
-                final authController =
-                    IonProvider.of<AuthState>(context) as AuthController;
-                authController.logout();
-              },
-              label: const Text('Sair'),
-              icon: const Icon(Icons.logout),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.error,
-                foregroundColor: Colors.white,
+              IonBuilder<WeatherState>(
+                ion: _dashboardController,
+                builder: (context, state) {
+                  if (state.status == .loading) {
+                    return Container(
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: colors.surface,
+                        borderRadius: .circular(12),
+                      ),
+                      child: const Center(
+                        child: CircularProgressIndicator(strokeWidth: 3),
+                      ),
+                    );
+                  }
+
+                  if (state.status == .error) {
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent.withValues(alpha: 0.2),
+                        borderRadius: .circular(12),
+                        border: .all(color: Colors.redAccent),
+                      ),
+                      child: Text(
+                        '⚠️ Erro de satélite: ${state.errorMessage}',
+                        style: const TextStyle(color: Colors.redAccent),
+                      ),
+                    );
+                  }
+
+                  if (state.status == .success && state.weather != null) {
+                    final weather = state.weather!;
+                    return Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: colors.surface,
+                        borderRadius: .circular(12),
+                        border: .all(
+                          color: colors.primary.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: .spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: .start,
+                            children: [
+                              Row(
+                                children: [
+                                  Image.network(
+                                    'https://openweathermap.org/img/wn/${weather.iconCode}@2x.png',
+                                    width: 44,
+                                    height: 44,
+                                    errorBuilder: (_, __, ___) => Icon(
+                                      Icons.wb_cloudy,
+                                      color: colors.primary,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    weather.description.toUpperCase(),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: .bold,
+                                      color: Colors.white70,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                '💨 Vento: ${weather.windSpeed.toStringAsFixed(1)} m/s  |  💧 Umidade: ${weather.humidity}%',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                '🌡️ Sensação: ${weather.temperatureFeelsLike.toStringAsFixed(1)}°C',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            '${weather.temperature.toStringAsFixed(0)}°C',
+                            style: TextStyle(
+                              fontSize: 46,
+                              fontWeight: .w900,
+                              color: colors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return const SizedBox.shrink();
+                },
               ),
-            ),
-          ],
+
+              const SizedBox(height: 24),
+
+              Text(
+                'VEÍCULOS EM ROTA',
+                style: TextStyle(
+                  color: colors
+                      .secondary, // Verde secundário para o gerenciamento de carros
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.2,
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40),
+                  child: Text(
+                    'Nenhum veículo em trânsito no momento.',
+                    style: TextStyle(color: Colors.white24, fontSize: 14),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
