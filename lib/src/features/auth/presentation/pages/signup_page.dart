@@ -67,6 +67,7 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
     return Scaffold(
       body: SafeArea(
@@ -81,7 +82,7 @@ class _SignupPageState extends State<SignupPage> {
 
                 Text(
                   'Criar Conta',
-                  style: theme.textTheme.headlineMedium?.copyWith(
+                  style: textTheme.headlineMedium?.copyWith(
                     fontWeight: .bold,
                     letterSpacing: 1.2,
                   ),
@@ -189,12 +190,12 @@ class _SignupPageState extends State<SignupPage> {
                           ? null
                           : () => _submit(_signupController),
                       child: state.status == .loading
-                          ? const SizedBox(
+                          ? SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: theme.colorScheme.tertiary,
                               ),
                             )
                           : Text('Cadastrar'),
@@ -207,10 +208,7 @@ class _SignupPageState extends State<SignupPage> {
                 Row(
                   mainAxisAlignment: .center,
                   children: [
-                    const Text(
-                      'Já possui uma conta?',
-                      style: TextStyle(color: Colors.white54),
-                    ),
+                    Text('Já possui uma conta?', style: textTheme.bodyMedium),
                     TextButton(
                       onPressed: widget.onFlip,
                       child: Text(

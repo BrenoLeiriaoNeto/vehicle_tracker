@@ -26,7 +26,7 @@ class ScaffoldWithBottomNavBar extends StatelessWidget {
         type: .fixed,
         backgroundColor: colors.surface,
         selectedItemColor: colors.primary,
-        unselectedItemColor: Colors.white38,
+        unselectedItemColor: colors.tertiary,
         showUnselectedLabels: true,
         selectedLabelStyle: const TextStyle(fontWeight: .bold, fontSize: 12),
         unselectedLabelStyle: const TextStyle(fontSize: 12),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ionex/ionex.dart';
+import 'package:vehicle_tracker/src/core/core_exports.dart';
 import 'package:vehicle_tracker/src/core/di/injection_container.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/state/auth_state.dart';
@@ -28,6 +29,8 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final textTheme = theme.textTheme;
+    final themeController = sl<ThemeController>();
 
     return Scaffold(
       appBar: AppBar(
@@ -39,6 +42,25 @@ class _DashboardPageState extends State<DashboardPage> {
         backgroundColor: colors.surface,
         elevation: 0,
         actions: [
+          IonBuilder<ThemeMode>(
+            ion: themeController,
+            builder: (context, _) {
+              return IconButton(
+                onPressed: () {
+                  themeController.toggleTheme();
+                },
+                icon: Icon(
+                  themeController.isDarkMode
+                      ? Icons.wb_sunny
+                      : Icons.nightlight_round,
+                  color: themeController.isDarkMode
+                      ? Colors.orangeAccent
+                      : colors.primary,
+                ),
+                tooltip: 'Mudar tema',
+              );
+            },
+          ),
           IconButton(
             onPressed: () {
               final authController =
@@ -127,7 +149,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                     'https://openweathermap.org/img/wn/${weather.iconCode}@2x.png',
                                     width: 44,
                                     height: 44,
-                                    errorBuilder: (_, __, ___) => Icon(
+                                    errorBuilder: (_, _, _) => Icon(
                                       Icons.wb_cloudy,
                                       color: colors.primary,
                                     ),
@@ -135,29 +157,23 @@ class _DashboardPageState extends State<DashboardPage> {
                                   const SizedBox(width: 8),
                                   Text(
                                     weather.description.toUpperCase(),
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: .bold,
-                                      color: Colors.white70,
-                                      letterSpacing: 0.5,
-                                    ),
+                                    style:
+                                        textTheme.titleSmall?.copyWith(
+                                          fontWeight: .bold,
+                                          letterSpacing: 0.5,
+                                        ) ??
+                                        TextStyle(color: colors.onSurface),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 12),
                               Text(
                                 '💨 Vento: ${weather.windSpeed.toStringAsFixed(1)} m/s  |  💧 Umidade: ${weather.humidity}%',
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                ),
+                                style: textTheme.bodySmall,
                               ),
                               Text(
                                 '🌡️ Sensação: ${weather.temperatureFeelsLike.toStringAsFixed(1)}°C',
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                ),
+                                style: textTheme.bodySmall,
                               ),
                             ],
                           ),
@@ -183,8 +199,7 @@ class _DashboardPageState extends State<DashboardPage> {
               Text(
                 'VEÍCULOS EM ROTA',
                 style: TextStyle(
-                  color: colors
-                      .secondary, // Verde secundário para o gerenciamento de carros
+                  color: colors.secondary,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.2,
                   fontSize: 12,
@@ -197,7 +212,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   padding: const EdgeInsets.symmetric(vertical: 40),
                   child: Text(
                     'Nenhum veículo em trânsito no momento.',
-                    style: TextStyle(color: Colors.white24, fontSize: 14),
+                    style: textTheme.bodyMedium,
                   ),
                 ),
               ),
