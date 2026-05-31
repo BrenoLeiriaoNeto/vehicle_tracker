@@ -38,6 +38,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
     final mediaQuery = MediaQuery.of(context);
 
     final authController = IonProvider.of<AuthState>(context) as AuthController;
@@ -84,7 +85,7 @@ class _LoginPageState extends State<LoginPage> {
                             const SizedBox(height: 16),
                             Text(
                               'Vehicle Tracker',
-                              style: theme.textTheme.headlineMedium?.copyWith(
+                              style: textTheme.headlineMedium?.copyWith(
                                 fontWeight: .bold,
                                 letterSpacing: 1.2,
                               ),
@@ -93,9 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                             const SizedBox(height: 8),
                             Text(
                               'Gerencia sua frota na velocidade da luz.',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: Colors.white54,
-                              ),
+                              style: textTheme.bodyMedium,
                               textAlign: .center,
                             ),
                           ],
@@ -180,9 +179,9 @@ class _LoginPageState extends State<LoginPage> {
                         Row(
                           mainAxisAlignment: .center,
                           children: [
-                            const Text(
+                            Text(
                               'Não tem uma conta?',
-                              style: TextStyle(color: Colors.white54),
+                              style: textTheme.bodyMedium,
                             ),
                             TextButton(
                               onPressed: widget.onFlip,

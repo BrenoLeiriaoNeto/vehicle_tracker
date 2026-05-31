@@ -5,6 +5,10 @@ import 'package:vehicle_tracker/src/features/auth/auth_data_exports.dart';
 import 'package:vehicle_tracker/src/features/auth/auth_domain_exports.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/signup_controller.dart';
+import 'package:vehicle_tracker/src/features/dashboard/dashboard_data_exports.dart';
+import 'package:vehicle_tracker/src/features/dashboard/dashboard_domain_exports.dart';
+import 'package:vehicle_tracker/src/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:weather/weather.dart';
 
 import '../../core/core_exports.dart';
 import '../../features/garage/garage_data_exports.dart';
@@ -20,6 +24,26 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<HttpClient>(() => HttpClient());
   sl.registerLazySingleton<FirebaseAuth>(() => FirebaseAuth.instance);
   sl.registerLazySingleton<FirebaseFirestore>(() => FirebaseFirestore.instance);
+  sl.registerLazySingleton<ThemeController>(() => ThemeController());
+
+  // ===========================================================================
+  // 📊 FEATURE - DASHBOARD
+  // ===========================================================================
+  sl.registerLazySingleton<WeatherFactory>(
+    () => WeatherFactory(
+      "14934eae224b12be05cf2933668c6b73",
+      language: .PORTUGUESE_BRAZIL,
+    ),
+  );
+  sl.registerFactory<DashboardController>(
+    () => DashboardController(sl<GetTargetWeatherUsecase>()),
+  );
+  sl.registerLazySingleton<GetTargetWeatherUsecase>(
+    () => GetTargetWeatherUsecase(sl<IWeatherRepository>()),
+  );
+  sl.registerLazySingleton<IWeatherRepository>(
+    () => WeatherRepository(sl<WeatherFactory>()),
+  );
 
   // ===========================================================================
   // 🔑 FEATURE - AUTH
