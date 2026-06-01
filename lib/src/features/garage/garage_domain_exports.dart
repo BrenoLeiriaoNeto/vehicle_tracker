@@ -1,4 +1,9 @@
-export 'domain/entities/brand_entity.dart';
-export 'domain/contracts/i_garage_repository.dart';
 export 'domain/usecases/get_brands_usecase.dart';
+export 'domain/usecases/get_models_usecase.dart';
+export 'domain/usecases/get_my_garage_usecase.dart';
+export 'domain/usecases/save_vehicle_usecase.dart';
 export 'domain/enums/garage_status.dart';
+export 'domain/enums/add_vehicle_status.dart';
+export 'domain/entities/fipe_item.dart';
+export 'domain/entities/vehicle.dart';
+export 'domain/contracts/i_vehicle_repository.dart';
