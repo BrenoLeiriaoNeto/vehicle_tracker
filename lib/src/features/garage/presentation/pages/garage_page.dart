@@ -217,7 +217,7 @@ class _GaragePageState extends State<GaragePage> {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      '${vehicle.currentKm} Km',
+                                      '${vehicle.currentKm.toStringAsFixed(0)} Km',
                                       style: textTheme.bodyMedium?.copyWith(
                                         color: colors.secondary,
                                         fontWeight: .bold,

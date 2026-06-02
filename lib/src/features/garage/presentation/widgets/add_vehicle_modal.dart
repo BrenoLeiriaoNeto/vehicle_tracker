@@ -92,16 +92,18 @@ class _AddVechicleModalState extends State<AddVechicleModal> {
                 return Column(
                   children: [
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       dropdownColor: colors.surface,
                       initialValue: state.selectedBrand?.codigo,
                       decoration: const InputDecoration(
-                        hintText: 'Selecione a marca',
+                        labelText: 'Selecione a marca',
+                        prefixIcon: Icon(Icons.directions_car_outlined),
                       ),
                       items: state.brands
                           .map(
                             (b) => DropdownMenuItem(
                               value: b.codigo,
-                              child: Text(b.nome),
+                              child: Text(b.nome, overflow: .ellipsis),
                             ),
                           )
                           .toList(),
@@ -117,19 +119,22 @@ class _AddVechicleModalState extends State<AddVechicleModal> {
                     const SizedBox(height: 16),
 
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       dropdownColor: colors.surface,
                       initialValue: state.selectedModel?.codigo,
                       decoration: InputDecoration(
+                        labelText: 'Selecione o modelo',
+                        prefixIcon: const Icon(Icons.build_circle_outlined),
                         hintText:
-                            state.status == .loading && state.models.isNotEmpty
+                            state.status == .loading && state.brands.isNotEmpty
                             ? 'Carregando modelos...'
-                            : 'Selecione o modelo',
+                            : null,
                       ),
                       items: state.models
                           .map(
                             (m) => DropdownMenuItem(
                               value: m.codigo,
-                              child: Text(m.nome),
+                              child: Text(m.nome, overflow: .ellipsis),
                             ),
                           )
                           .toList(),

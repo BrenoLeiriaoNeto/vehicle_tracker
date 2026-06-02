@@ -23,8 +23,16 @@ class AppTheme {
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFF1e1e22),
+        fillColor: const Color(0xFF26262B),
         hintStyle: const TextStyle(color: Colors.white38),
+        labelStyle: const TextStyle(color: Colors.white70),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: .circular(12),
+          borderSide: BorderSide(
+            color: Colors.white.withValues(alpha: 0.05),
+            width: 1,
+          ),
+        ),
         border: OutlineInputBorder(
           borderRadius: .circular(12),
           borderSide: .none,
@@ -69,11 +77,16 @@ class AppTheme {
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFFFFFFFF),
+        fillColor: const Color(0xFFF1F3F5),
         hintStyle: const TextStyle(color: Colors.black38),
+        labelStyle: const TextStyle(color: Colors.black87),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: .circular(12),
+          borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+        ),
         border: OutlineInputBorder(
           borderRadius: .circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
+          borderSide: .none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: .circular(12),

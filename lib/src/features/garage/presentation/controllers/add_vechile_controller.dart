@@ -87,7 +87,7 @@ class AddVechileController extends Ion<AddVehicleState> {
         brand: state.selectedBrand!.nome,
         model: state.selectedModel!.nome,
         year: state.selectedYear?.nome ?? 'Ano Desconecido',
-        currentKm: currentKm.toString(),
+        currentKm: currentKm,
         status: 'available',
       );
 

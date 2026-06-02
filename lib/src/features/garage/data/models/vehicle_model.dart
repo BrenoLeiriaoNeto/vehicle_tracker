@@ -27,7 +27,7 @@ class VehicleModel extends Vehicle {
       brand: map['brand'] as String,
       model: map['model'] as String,
       year: map['year'] as String,
-      currentKm: map['currentKm'] as String,
+      currentKm: (map['currentKm'] as num).toDouble(),
       status: map['status'] as String? ?? 'available',
     );
   }

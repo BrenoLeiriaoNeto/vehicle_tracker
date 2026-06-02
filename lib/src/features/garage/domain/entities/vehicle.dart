@@ -3,7 +3,7 @@ class Vehicle {
   final String brand;
   final String model;
   final String year;
-  final String currentKm;
+  final double currentKm;
   final String status;
 
   const Vehicle({

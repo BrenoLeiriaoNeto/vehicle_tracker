@@ -22,7 +22,6 @@ class VehicleRepository implements IVehicleRepository {
   @override
   Future<List<FipeItem>> getModels(String brandId) async {
     final response = await _httpClient.dio.get('/cars/brands/$brandId/models');
-    print('Response MODELS ---->: ${response.data}');
     return (response.data as List)
         .map((e) => FipeItemModel.fromJson(e))
         .toList();

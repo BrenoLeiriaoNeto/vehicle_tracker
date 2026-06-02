@@ -132,7 +132,6 @@ class _LoginPageState extends State<LoginPage> {
                               _obscurePassword
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color: Colors.white54,
                             ),
                             onPressed: () {
                               setState(
