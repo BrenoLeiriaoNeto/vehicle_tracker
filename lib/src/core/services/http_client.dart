@@ -6,7 +6,7 @@ class HttpClient {
   HttpClient()
     : dio = Dio(
         BaseOptions(
-          baseUrl: 'https://deividfortuna.github.io/fipe/v1',
+          baseUrl: 'https://fipe.parallelum.com.br/api/v2',
           connectTimeout: const Duration(seconds: 10),
           receiveTimeout: const Duration(seconds: 10),
         ),

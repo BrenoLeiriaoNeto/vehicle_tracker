@@ -8,6 +8,7 @@ import 'package:vehicle_tracker/src/features/auth/presentation/controllers/signu
 import 'package:vehicle_tracker/src/features/dashboard/dashboard_data_exports.dart';
 import 'package:vehicle_tracker/src/features/dashboard/dashboard_domain_exports.dart';
 import 'package:vehicle_tracker/src/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:vehicle_tracker/src/features/garage/presentation/controllers/add_vechile_controller.dart';
 import 'package:weather/weather.dart';
 
 import '../../core/core_exports.dart';
@@ -68,16 +69,35 @@ Future<void> initDependencies() async {
   // ===========================================================================
   // 🚗 FEATURE - GARAGE
   // ===========================================================================
-  sl.registerLazySingleton<IFipeDataSource>(
-    () => FipeDataSource(sl<HttpClient>()),
-  );
-  sl.registerLazySingleton<IGarageRepository>(
-    () => GarageRepository(sl<IFipeDataSource>()),
-  );
-  sl.registerLazySingleton<GetBrandsUseCase>(
-    () => GetBrandsUseCase(sl<IGarageRepository>()),
-  );
   sl.registerFactory<GarageController>(
-    () => GarageController(sl<GetBrandsUseCase>()),
+    () => GarageController(sl<GetMyGarageUsecase>()),
+  );
+  sl.registerFactory<AddVechileController>(
+    () => AddVechileController(
+      sl<GetBrandsUseCase>(),
+      sl<GetModelsUseCase>(),
+      sl<GetYearsUseCase>(),
+      sl<SaveVehicleUseCase>(),
+    ),
+  );
+
+  sl.registerLazySingleton<GetBrandsUseCase>(
+    () => GetBrandsUseCase(sl<IVehicleRepository>()),
+  );
+  sl.registerLazySingleton<GetModelsUseCase>(
+    () => GetModelsUseCase(sl<IVehicleRepository>()),
+  );
+  sl.registerLazySingleton<GetMyGarageUsecase>(
+    () => GetMyGarageUsecase(sl<IVehicleRepository>()),
+  );
+  sl.registerLazySingleton<SaveVehicleUseCase>(
+    () => SaveVehicleUseCase(sl<IVehicleRepository>()),
+  );
+  sl.registerLazySingleton<GetYearsUseCase>(
+    () => GetYearsUseCase(sl<IVehicleRepository>()),
+  );
+
+  sl.registerLazySingleton<IVehicleRepository>(
+    () => VehicleRepository(sl<HttpClient>(), sl<FirebaseFirestore>()),
   );
 }

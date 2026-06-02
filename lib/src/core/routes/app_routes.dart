@@ -5,6 +5,7 @@ import 'package:vehicle_tracker/src/core/widgets/scaffold_with_bottom_nav_bar.da
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/pages/auth_screen.dart';
 import 'package:vehicle_tracker/src/features/dashboard/presentation/pages/dashboard_page.dart';
+import 'package:vehicle_tracker/src/features/garage/presentation/pages/garage_page.dart';
 
 class AppRoutes {
   static final GoRouter router = GoRouter(
@@ -41,6 +42,14 @@ class AppRoutes {
               GoRoute(
                 path: dashboard,
                 builder: (context, state) => DashboardPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: garage,
+                builder: (context, state) => const GaragePage(),
               ),
             ],
           ),
