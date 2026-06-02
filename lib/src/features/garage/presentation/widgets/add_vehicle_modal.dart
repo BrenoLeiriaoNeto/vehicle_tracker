@@ -149,6 +149,44 @@ class _AddVechicleModalState extends State<AddVechicleModal> {
                               }
                             },
                     ),
+                    const SizedBox(height: 16),
+
+                    DropdownButtonFormField<String>(
+                      dropdownColor: colors.surface,
+                      isExpanded: true,
+                      initialValue: state.selectedYear?.codigo,
+                      decoration: InputDecoration(
+                        labelText: 'Selecione o ano / combustível',
+                        prefixIcon: const Icon(Icons.calendar_today_outlined),
+                        hintText:
+                            state.status == .loading &&
+                                state.models.isNotEmpty &&
+                                state.years.isEmpty
+                            ? 'Carregando anos...'
+                            : null,
+                      ),
+                      items: state.years.isEmpty
+                          ? null
+                          : state.years
+                                .map(
+                                  (y) => DropdownMenuItem(
+                                    value: y.codigo,
+                                    child: Text(y.nome, overflow: .ellipsis),
+                                  ),
+                                )
+                                .toList(),
+                      onChanged:
+                          (state.status == .loading || state.years.isEmpty)
+                          ? null
+                          : (value) {
+                              if (value != null) {
+                                final year = state.years.firstWhere(
+                                  (e) => e.codigo == value,
+                                );
+                                _controller.selectYear(year);
+                              }
+                            },
+                    ),
                   ],
                 );
               },

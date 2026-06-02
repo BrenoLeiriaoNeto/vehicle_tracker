@@ -76,6 +76,7 @@ Future<void> initDependencies() async {
     () => AddVechileController(
       sl<GetBrandsUseCase>(),
       sl<GetModelsUseCase>(),
+      sl<GetYearsUseCase>(),
       sl<SaveVehicleUseCase>(),
     ),
   );
@@ -91,6 +92,9 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<SaveVehicleUseCase>(
     () => SaveVehicleUseCase(sl<IVehicleRepository>()),
+  );
+  sl.registerLazySingleton<GetYearsUseCase>(
+    () => GetYearsUseCase(sl<IVehicleRepository>()),
   );
 
   sl.registerLazySingleton<IVehicleRepository>(

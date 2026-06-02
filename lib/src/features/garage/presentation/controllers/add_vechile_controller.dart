@@ -5,11 +5,13 @@ import 'package:vehicle_tracker/src/features/garage/state/add_vehicle_state.dart
 class AddVechileController extends Ion<AddVehicleState> {
   final GetBrandsUseCase _getBrandsUseCase;
   final GetModelsUseCase _getModelsUseCase;
+  final GetYearsUseCase _getYearsUseCase;
   final SaveVehicleUseCase _saveVehicleUseCase;
 
   AddVechileController(
     this._getBrandsUseCase,
     this._getModelsUseCase,
+    this._getYearsUseCase,
     this._saveVehicleUseCase,
   ) : super(AddVehicleState.initial());
 
@@ -54,13 +56,34 @@ class AddVechileController extends Ion<AddVehicleState> {
     }
   }
 
-  void selectModel(FipeItem model) {
+  Future<void> selectModel(FipeItem model) async {
+    final brandId = state.selectedBrand?.codigo;
+    if (brandId == null) return;
+
     set(
       state.copyWith(
         selectedModel: model,
-        selectedYear: const FipeItem(codigo: '2026-3', nome: '2026 Gasolina'),
+        status: .loading,
+        clearYear: true,
+        years: [],
       ),
     );
+
+    try {
+      final years = await _getYearsUseCase(brandId, model.codigo);
+      set(state.copyWith(status: .initial, years: years));
+    } catch (e) {
+      set(
+        state.copyWith(
+          status: .error,
+          errorMessage: 'Falha ao buscar anos: $e',
+        ),
+      );
+    }
+  }
+
+  void selectYear(FipeItem year) {
+    set(state.copyWith(selectedYear: year));
   }
 
   Future<bool> submitVehicle({
@@ -86,7 +109,7 @@ class AddVechileController extends Ion<AddVehicleState> {
         plate: plate.toUpperCase().trim(),
         brand: state.selectedBrand!.nome,
         model: state.selectedModel!.nome,
-        year: state.selectedYear?.nome ?? 'Ano Desconecido',
+        year: state.selectedYear!.nome,
         currentKm: currentKm,
         status: 'available',
       );
