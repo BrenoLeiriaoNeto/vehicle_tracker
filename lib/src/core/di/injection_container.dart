@@ -29,6 +29,9 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<FirebaseAuth>(() => FirebaseAuth.instance);
   sl.registerLazySingleton<FirebaseFirestore>(() => FirebaseFirestore.instance);
   sl.registerLazySingleton<ThemeController>(() => ThemeController());
+  sl.registerLazySingleton<CloudflareStorageService>(
+    () => CloudflareStorageService(sl<HttpClient>()),
+  );
 
   // ===========================================================================
   // 📊 FEATURE - DASHBOARD

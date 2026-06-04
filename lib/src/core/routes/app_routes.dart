@@ -9,6 +9,7 @@ import 'package:vehicle_tracker/src/features/dashboard/presentation/pages/dashbo
 import 'package:vehicle_tracker/src/features/garage/presentation/pages/garage_page.dart';
 import 'package:vehicle_tracker/src/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:vehicle_tracker/src/features/profile/presentation/pages/profile_page.dart';
+import 'package:vehicle_tracker/src/features/trip/presentation/pages/trips_page.dart';
 
 class AppRoutes {
   static final GoRouter router = GoRouter(
@@ -53,6 +54,14 @@ class AppRoutes {
               GoRoute(
                 path: garage,
                 builder: (context, state) => const GaragePage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: trips,
+                builder: (context, state) => const TripsPage(),
               ),
             ],
           ),

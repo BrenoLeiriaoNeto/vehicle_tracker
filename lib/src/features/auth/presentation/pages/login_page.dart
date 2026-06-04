@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:ionex/ionex.dart';
 import 'package:vehicle_tracker/src/core/core_exports.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
-import 'package:vehicle_tracker/src/features/auth/presentation/state/auth_state.dart';
 
 class LoginPage extends StatefulWidget {
   final VoidCallback onFlip;
@@ -41,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
     final textTheme = theme.textTheme;
     final mediaQuery = MediaQuery.of(context);
 
-    final authController = IonProvider.of<AuthState>(context) as AuthController;
+    final authController = IonProvider.of<AuthController>(context);
 
     return Scaffold(
       body: SafeArea(

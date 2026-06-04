@@ -3,7 +3,6 @@ import 'package:ionex/ionex.dart';
 import 'package:vehicle_tracker/src/core/core_exports.dart';
 import 'package:vehicle_tracker/src/core/di/injection_container.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
-import 'package:vehicle_tracker/src/features/auth/presentation/state/auth_state.dart';
 import 'package:vehicle_tracker/src/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:vehicle_tracker/src/features/dashboard/presentation/state/weather_state.dart';
 
@@ -31,6 +30,8 @@ class _DashboardPageState extends State<DashboardPage> {
     final colors = theme.colorScheme;
     final textTheme = theme.textTheme;
     final themeController = sl<ThemeController>();
+
+    final authController = IonProvider.of<AuthController>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -62,11 +63,7 @@ class _DashboardPageState extends State<DashboardPage> {
             },
           ),
           IconButton(
-            onPressed: () {
-              final authController =
-                  IonProvider.of<AuthState>(context) as AuthController;
-              authController.logout();
-            },
+            onPressed: () => authController.logout(),
             icon: const Icon(
               Icons.power_settings_new,
               color: Colors.redAccent,

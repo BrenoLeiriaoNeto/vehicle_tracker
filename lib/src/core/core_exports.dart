@@ -7,3 +7,4 @@ export 'errors/garage_failures.dart';
 export 'routes/app_routes.dart';
 export 'routes/app_routes_names.dart';
 export 'services/gps_service.dart';
+export 'services/cloudflare_storage_service.dart';

@@ -13,10 +13,8 @@ class ProfilePage extends StatelessWidget {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
-    final authController =
-        IonProvider.of<AuthController>(context) as AuthController;
-    final profileController =
-        IonProvider.of<ProfileController>(context) as ProfileController;
+    final authController = IonProvider.of<AuthController>(context);
+    final profileController = IonProvider.of<ProfileController>(context);
 
     final userUid = authController.state.user?.id;
 
@@ -27,6 +25,7 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Meu Perfil'),
+        centerTitle: true,
         actions: [
           IconButton(
             onPressed: () => authController.logout(),
@@ -59,7 +58,7 @@ class ProfilePage extends StatelessWidget {
                   radius: 50,
                   backgroundImage: profile.avatarUrl != null
                       ? NetworkImage(profile.avatarUrl!)
-                      : const AssetImage('assets/images/default_avatar.png')
+                      : const AssetImage('assets/images/CP avatar.jpg')
                             as ImageProvider,
                 ),
                 const SizedBox(height: 12),
@@ -100,7 +99,7 @@ class ProfilePage extends StatelessWidget {
                     _buildMetricsCard(
                       context,
                       'Km Rodados',
-                      profile.sumKilometers.toString(),
+                      profile.sumKilometers.toStringAsFixed(0),
                     ),
                   ],
                 ),
