@@ -9,6 +9,9 @@ import 'package:vehicle_tracker/src/features/dashboard/dashboard_data_exports.da
 import 'package:vehicle_tracker/src/features/dashboard/dashboard_domain_exports.dart';
 import 'package:vehicle_tracker/src/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:vehicle_tracker/src/features/garage/presentation/controllers/add_vechile_controller.dart';
+import 'package:vehicle_tracker/src/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:vehicle_tracker/src/features/profile/profile_data_exports.dart';
+import 'package:vehicle_tracker/src/features/profile/profile_domain_exports.dart';
 import 'package:weather/weather.dart';
 
 import '../../core/core_exports.dart';
@@ -26,6 +29,9 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<FirebaseAuth>(() => FirebaseAuth.instance);
   sl.registerLazySingleton<FirebaseFirestore>(() => FirebaseFirestore.instance);
   sl.registerLazySingleton<ThemeController>(() => ThemeController());
+  sl.registerLazySingleton<CloudflareStorageService>(
+    () => CloudflareStorageService(sl<HttpClient>()),
+  );
 
   // ===========================================================================
   // 📊 FEATURE - DASHBOARD
@@ -99,5 +105,32 @@ Future<void> initDependencies() async {
 
   sl.registerLazySingleton<IVehicleRepository>(
     () => VehicleRepository(sl<HttpClient>(), sl<FirebaseFirestore>()),
+  );
+
+  // ===========================================================================
+  // 👤 FEATURE - PROFILE
+  // ===========================================================================
+  sl.registerFactory<ProfileController>(
+    () => ProfileController(
+      sl<GetProfileUsecase>(),
+      sl<UpdateProfileUsecase>(),
+      sl<DeleteProfileUsecase>(),
+    ),
+  );
+
+  sl.registerLazySingleton<GetProfileUsecase>(
+    () => GetProfileUsecase(sl<IProfileRepository>()),
+  );
+
+  sl.registerLazySingleton<UpdateProfileUsecase>(
+    () => UpdateProfileUsecase(sl<IProfileRepository>()),
+  );
+
+  sl.registerLazySingleton<DeleteProfileUsecase>(
+    () => DeleteProfileUsecase(sl<IProfileRepository>()),
+  );
+
+  sl.registerLazySingleton<IProfileRepository>(
+    () => ProfileRepository(sl<FirebaseFirestore>()),
   );
 }

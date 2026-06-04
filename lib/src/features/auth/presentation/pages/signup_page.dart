@@ -4,7 +4,6 @@ import 'package:vehicle_tracker/src/core/core_exports.dart';
 import 'package:vehicle_tracker/src/core/di/injection_container.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/signup_controller.dart';
-import 'package:vehicle_tracker/src/features/auth/presentation/state/auth_state.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/state/signup_state.dart';
 
 class SignupPage extends StatefulWidget {
@@ -48,8 +47,7 @@ class _SignupPageState extends State<SignupPage> {
     final state = _signupController.state;
 
     if (state.status == .success) {
-      final authController =
-          IonProvider.of<AuthState>(context) as AuthController;
+      final authController = IonProvider.of<AuthController>(context);
       authController.setAuthenticatedUser(state.createdUser);
     }
   }
