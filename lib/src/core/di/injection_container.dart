@@ -12,6 +12,9 @@ import 'package:vehicle_tracker/src/features/garage/presentation/controllers/add
 import 'package:vehicle_tracker/src/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:vehicle_tracker/src/features/profile/profile_data_exports.dart';
 import 'package:vehicle_tracker/src/features/profile/profile_domain_exports.dart';
+import 'package:vehicle_tracker/src/features/trip/presentation/controllers/trip_controller.dart';
+import 'package:vehicle_tracker/src/features/trip/trip_data_exports.dart';
+import 'package:vehicle_tracker/src/features/trip/trip_domain_exports.dart';
 import 'package:weather/weather.dart';
 
 import '../../core/core_exports.dart';
@@ -132,5 +135,40 @@ Future<void> initDependencies() async {
 
   sl.registerLazySingleton<IProfileRepository>(
     () => ProfileRepository(sl<FirebaseFirestore>()),
+  );
+
+  // ===========================================================================
+  // 🧭 FEATURE / TRIP
+  // ===========================================================================
+  sl.registerLazySingleton<TripController>(
+    () => TripController(
+      sl<WatchTripUsecase>(),
+      sl<StartTripUsecase>(),
+      sl<UpdateTripUsecase>(),
+      sl<GetTrips>(),
+      sl<CompleteTripUsecase>(),
+    ),
+  );
+
+  sl.registerLazySingleton<WatchTripUsecase>(
+    () => WatchTripUsecase(sl<ITripRepository>()),
+  );
+
+  sl.registerLazySingleton<StartTripUsecase>(
+    () => StartTripUsecase(sl<ITripRepository>()),
+  );
+
+  sl.registerLazySingleton<UpdateTripUsecase>(
+    () => UpdateTripUsecase(sl<ITripRepository>()),
+  );
+
+  sl.registerLazySingleton<GetTrips>(() => GetTrips(sl<ITripRepository>()));
+
+  sl.registerLazySingleton<CompleteTripUsecase>(
+    () => CompleteTripUsecase(sl<ITripRepository>()),
+  );
+
+  sl.registerLazySingleton<ITripRepository>(
+    () => TripRepository(sl<FirebaseFirestore>()),
   );
 }

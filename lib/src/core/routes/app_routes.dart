@@ -9,6 +9,7 @@ import 'package:vehicle_tracker/src/features/dashboard/presentation/pages/dashbo
 import 'package:vehicle_tracker/src/features/garage/presentation/pages/garage_page.dart';
 import 'package:vehicle_tracker/src/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:vehicle_tracker/src/features/profile/presentation/pages/profile_page.dart';
+import 'package:vehicle_tracker/src/features/trip/presentation/controllers/trip_controller.dart';
 import 'package:vehicle_tracker/src/features/trip/presentation/pages/trips_page.dart';
 
 class AppRoutes {
@@ -38,7 +39,10 @@ class AppRoutes {
 
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
-          return ScaffoldWithBottomNavBar(navigationShell: navigationShell);
+          return IonProvider(
+            ion: sl<TripController>(),
+            child: ScaffoldWithBottomNavBar(navigationShell: navigationShell),
+          );
         },
         branches: [
           StatefulShellBranch(
