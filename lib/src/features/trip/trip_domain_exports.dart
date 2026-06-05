@@ -1,0 +1,9 @@
+export 'domain/enums/trip_status.dart';
+export 'domain/enums/trip_vehicle_state.dart';
+export 'domain/entities/trip.dart';
+export 'domain/contracts/i_trip_repository.dart';
+export 'domain/usecases/complete_trip_usecase.dart';
+export 'domain/usecases/get_trips.dart';
+export 'domain/usecases/start_trip_usecase.dart';
+export 'domain/usecases/update_trip_usecase.dart';
+export 'domain/usecases/watch_trip_usecase.dart';
