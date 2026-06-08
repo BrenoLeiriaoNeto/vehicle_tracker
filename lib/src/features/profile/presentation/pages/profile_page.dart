@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ionex/ionex.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/profile/presentation/controllers/profile_controller.dart';
@@ -28,7 +29,11 @@ class ProfilePage extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () => authController.logout(),
+            onPressed: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+
+              context.go('/logout');
+            },
             icon: const Icon(Icons.logout),
           ),
         ],

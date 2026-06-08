@@ -142,5 +142,22 @@ class TripController extends Ion<TripState> {
     }
   }
 
-  void dispose() => _tripSubscription?.cancel();
+  Future<bool> logoutClear() async {
+    final hasActiveStream = _tripSubscription != null;
+
+    if (hasActiveStream) {
+      await _tripSubscription?.cancel();
+      _tripSubscription = null;
+    }
+
+    set(.initial());
+
+    return hasActiveStream;
+  }
+
+  @override
+  void dispose() {
+    _tripSubscription?.cancel();
+    super.dispose();
+  }
 }

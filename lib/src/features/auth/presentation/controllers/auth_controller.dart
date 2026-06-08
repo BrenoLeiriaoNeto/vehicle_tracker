@@ -5,8 +5,10 @@ import 'package:vehicle_tracker/src/features/auth/presentation/state/auth_state.
 
 class AuthController extends Ion<AuthState> {
   final LoginWithEmailPasswordUsecase _loginUseCase;
+  final LogoutUsecase _logoutUsecase;
 
-  AuthController(this._loginUseCase) : super(AuthState.initial());
+  AuthController(this._loginUseCase, this._logoutUsecase)
+    : super(AuthState.initial());
 
   Future<void> login(String email, String password) async {
     if (state.status == .loading) return;
@@ -42,7 +44,15 @@ class AuthController extends Ion<AuthState> {
     set(state.copyWith(status: .authenticated, user: user));
   }
 
-  void logout() {
-    set(AuthState(status: .unauthenticated));
+  void setUnauthenticatedUser() {
+    set(state.copyWith(status: .unauthenticated));
+  }
+
+  Future<void> logout() async {
+    try {
+      await _logoutUsecase();
+    } catch (e) {
+      set(state.copyWith(status: .error, errorMessage: e.toString()));
+    }
   }
 }

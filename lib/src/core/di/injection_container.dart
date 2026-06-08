@@ -59,13 +59,19 @@ Future<void> initDependencies() async {
   // 🔑 FEATURE - AUTH
   // ===========================================================================
   sl.registerLazySingleton<AuthController>(
-    () => AuthController(sl<LoginWithEmailPasswordUsecase>()),
+    () => AuthController(
+      sl<LoginWithEmailPasswordUsecase>(),
+      sl<LogoutUsecase>(),
+    ),
   );
   sl.registerLazySingleton<IAuthRepository>(
     () => AuthRepository(sl<FirebaseAuth>(), sl<FirebaseFirestore>()),
   );
   sl.registerLazySingleton<LoginWithEmailPasswordUsecase>(
     () => LoginWithEmailPasswordUsecase(sl<IAuthRepository>()),
+  );
+  sl.registerLazySingleton<LogoutUsecase>(
+    () => LogoutUsecase(sl<IAuthRepository>()),
   );
   sl.registerLazySingleton<SignupWithEmailPassword>(
     () => SignupWithEmailPassword(sl<IAuthRepository>()),

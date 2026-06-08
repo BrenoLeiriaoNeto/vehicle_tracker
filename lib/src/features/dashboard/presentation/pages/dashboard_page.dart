@@ -5,6 +5,7 @@ import 'package:vehicle_tracker/src/core/di/injection_container.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:vehicle_tracker/src/features/dashboard/presentation/state/weather_state.dart';
+import 'package:vehicle_tracker/src/features/trip/presentation/controllers/trip_controller.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -63,7 +64,13 @@ class _DashboardPageState extends State<DashboardPage> {
             },
           ),
           IconButton(
-            onPressed: () => authController.logout(),
+            onPressed: () async {
+              final tripController = IonProvider.of<TripController>(context);
+
+              await tripController.logoutClear();
+
+              await authController.logout();
+            },
             icon: const Icon(
               Icons.power_settings_new,
               color: Colors.redAccent,
