@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionex/ionex.dart';
+import 'package:vehicle_tracker/src/core/di/injection_container.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/trip/presentation/controllers/trip_controller.dart';
 import 'package:vehicle_tracker/src/features/trip/presentation/widgets/trip_filter_section.dart';
@@ -22,10 +23,12 @@ class _TripsPageState extends State<TripsPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final auth = IonProvider.of<AuthController>(context);
+      final user = sl<AuthController>().state.user;
       final tripController = IonProvider.of<TripController>(context);
 
-      tripController.getMyTrips(auth.state.user!.id);
+      if (user != null) {
+        tripController.getMyTrips(user.id);
+      }
     });
   }
 
@@ -34,7 +37,6 @@ class _TripsPageState extends State<TripsPage> {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
-    final authController = IonProvider.of<AuthController>(context);
     final tripController = IonProvider.of<TripController>(context);
 
     return Scaffold(
@@ -44,8 +46,12 @@ class _TripsPageState extends State<TripsPage> {
         elevation: 0,
         actions: [
           IconButton(
-            onPressed: () =>
-                tripController.getMyTrips(authController.state.user!.id),
+            onPressed: () {
+              final user = sl<AuthController>().state.user;
+              if (user != null) {
+                tripController.getMyTrips(user.id);
+              }
+            },
             icon: const Icon(Icons.refresh),
           ),
         ],
@@ -83,6 +89,7 @@ class _TripsPageState extends State<TripsPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'fab_trips',
         onPressed: () => context.push('/trips/new'),
         backgroundColor: theme.colorScheme.primary,
         child: const Icon(Icons.add_road, color: Colors.black),

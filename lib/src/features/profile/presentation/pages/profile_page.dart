@@ -1,26 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionex/ionex.dart';
+import 'package:vehicle_tracker/src/core/di/injection_container.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:vehicle_tracker/src/features/profile/state/profile_state.dart';
+import 'package:vehicle_tracker/src/features/trip/presentation/controllers/trip_controller.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = sl<AuthController>();
+      final profileController = IonProvider.of<ProfileController>(context);
+
+      if (auth.state.user != null &&
+          profileController.state.status == .initial) {
+        profileController.loadProfile(auth.state.user!.id);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-
-    final authController = IonProvider.of<AuthController>(context);
-    final profileController = IonProvider.of<ProfileController>(context);
-
-    final userUid = authController.state.user?.id;
-
-    if (userUid != null && profileController.state.status == .initial) {
-      Future.microtask(() => profileController.loadProfile(userUid));
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -28,10 +41,19 @@ class ProfilePage extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {
-              FocusManager.instance.primaryFocus?.unfocus();
+            onPressed: () async {
+              final auth = sl<AuthController>();
+              final trip = sl<TripController>();
 
-              context.go('/logout');
+              await trip.logoutClear();
+
+              await auth.logout();
+
+              await Future.delayed(.zero);
+
+              if (mounted) {
+                auth.setUnauthenticatedUser();
+              }
             },
             icon: const Icon(Icons.logout),
           ),
@@ -53,6 +75,8 @@ class ProfilePage extends StatelessWidget {
             return const Center(child: Text('Perfil não encontrado.'));
           }
 
+          final userName = sl<AuthController>().state.user?.name ?? 'Usuário';
+
           return SingleChildScrollView(
             padding: EdgeInsets.all(16.0),
             child: Column(
@@ -61,13 +85,13 @@ class ProfilePage extends StatelessWidget {
                   radius: 50,
                   backgroundImage:
                       profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
-                      ? NetworkImage(profile.avatarUrl!)
+                      ? NetworkImage(profile.avatarUrl ?? '')
                       : const AssetImage('assets/images/CP avatar.jpg')
                             as ImageProvider,
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  authController.state.user?.name ?? 'Usuário',
+                  userName,
                   style: textTheme.titleLarge?.copyWith(fontWeight: .bold),
                 ),
                 Text(

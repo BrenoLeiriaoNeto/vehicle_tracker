@@ -33,7 +33,7 @@ class AppRoutes {
         return isLoggingIn ? null : auth;
       }
 
-      if (isLoggingIn) {
+      if (isLoggingIn && authState.status == .authenticated) {
         return dashboard;
       }
 
@@ -42,7 +42,14 @@ class AppRoutes {
 
     routes: [
       GoRoute(path: auth, builder: (context, state) => const AuthScreen()),
-      GoRoute(path: logout, builder: (context, state) => const LogoutPage()),
+      GoRoute(
+        path: '/logout',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const LogoutPage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              FadeTransition(opacity: animation, child: child),
+        ),
+      ),
 
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

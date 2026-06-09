@@ -78,6 +78,7 @@ class _GaragePageState extends State<GaragePage> {
           ),
 
           floatingActionButton: FloatingActionButton(
+            heroTag: 'fab_garage',
             backgroundColor: colors.primary,
             child: const Icon(Icons.add, color: Colors.black, size: 28),
             onPressed: () async {

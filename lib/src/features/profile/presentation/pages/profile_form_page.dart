@@ -33,9 +33,9 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
     super.initState();
 
     _profileController = IonProvider.of<ProfileController>(context);
-    final authController = IonProvider.of<AuthController>(context);
 
-    _userId = authController.state.user?.id ?? '';
+    _userId = sl<AuthController>().state.user?.id ?? '';
+
     final currentProfile = _profileController.state.profile;
 
     _bioController = TextEditingController(text: currentProfile?.bio ?? '');
@@ -162,6 +162,11 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                               _validateAvatarUrl(_avatarController.text) == null
                           ? NetworkImage(_avatarController.text.trim())
                           : null,
+                      onBackgroundImageError: (exception, stackTrace) {
+                        debugPrint(
+                          'Erro ao carregar imagem de perfil: $exception',
+                        );
+                      },
                       child:
                           _avatarController.text.trim().isEmpty ||
                               _validateAvatarUrl(_avatarController.text) != null
