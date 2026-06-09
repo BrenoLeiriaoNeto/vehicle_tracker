@@ -444,10 +444,10 @@ packages:
     dependency: "direct main"
     description:
       name: ionex
-      sha256: "4fc58056126615990e7539a4f85d30c91b68af8ffa4153c68daacbd5ad5e9349"
+      sha256: "8cdda367b4d7325d0f0e7993d62c81319f6e952eb158fe009597457df4a60d0f"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "2.0.0"
   leak_tracker:
     dependency: transitive
     description:

@@ -13,6 +13,9 @@ void main() async {
   await initDependencies();
 
   runApp(
-    IonProvider(ion: sl<AuthController>(), child: const VehicleTrackerApp()),
+    IonProvider(
+      create: (_) => sl<AuthController>(),
+      child: const VehicleTrackerApp(),
+    ),
   );
 }

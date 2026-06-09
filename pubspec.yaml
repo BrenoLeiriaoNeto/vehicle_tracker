@@ -13,7 +13,7 @@ dependencies:
 
   cupertino_icons: ^1.0.8
 
-  ionex: ^1.1.0
+  ionex: ^2.0.0
 
   firebase_core: ^4.9.0
   firebase_auth: ^6.5.1

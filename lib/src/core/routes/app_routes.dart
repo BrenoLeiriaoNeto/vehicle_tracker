@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionex/ionex.dart';
 import 'package:vehicle_tracker/src/core/core_exports.dart';
@@ -7,6 +8,8 @@ import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_
 import 'package:vehicle_tracker/src/features/auth/presentation/pages/auth_screen.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/pages/logout_page.dart';
 import 'package:vehicle_tracker/src/features/dashboard/presentation/pages/dashboard_page.dart';
+import 'package:vehicle_tracker/src/features/garage/presentation/controllers/garage_controller.dart';
+import 'package:vehicle_tracker/src/features/garage/presentation/pages/add_car_page.dart';
 import 'package:vehicle_tracker/src/features/garage/presentation/pages/garage_page.dart';
 import 'package:vehicle_tracker/src/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:vehicle_tracker/src/features/profile/presentation/pages/profile_page.dart';
@@ -43,7 +46,7 @@ class AppRoutes {
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return IonProvider(
-            ion: sl<TripController>(),
+            create: (_) => sl<TripController>(),
             child: ScaffoldWithBottomNavBar(navigationShell: navigationShell),
           );
         },
@@ -60,7 +63,35 @@ class AppRoutes {
             routes: [
               GoRoute(
                 path: garage,
-                builder: (context, state) => const GaragePage(),
+                builder: (context, state) => IonProvider(
+                  create: (_) => sl<GarageController>(),
+                  child: const GaragePage(),
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'new',
+                    pageBuilder: (context, state) {
+                      return CustomTransitionPage(
+                        key: state.pageKey,
+                        child: AddCarPage(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                              return SlideTransition(
+                                position: animation.drive(
+                                  Tween<Offset>(
+                                    begin: const Offset(1, 0),
+                                    end: .zero,
+                                  ).chain(
+                                    CurveTween(curve: Curves.easeInOutCubic),
+                                  ),
+                                ),
+                                child: child,
+                              );
+                            },
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -83,7 +114,7 @@ class AppRoutes {
               GoRoute(
                 path: profile,
                 builder: (context, state) => IonProvider(
-                  ion: sl<ProfileController>(),
+                  create: (_) => sl<ProfileController>(),
                   child: const ProfilePage(),
                 ),
               ),
