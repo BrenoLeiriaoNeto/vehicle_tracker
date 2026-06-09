@@ -1,29 +1,28 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ionex/ionex.dart';
 import 'package:vehicle_tracker/src/core/core_exports.dart';
 import 'package:vehicle_tracker/src/core/di/injection_container.dart';
+import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/profile/presentation/controllers/profile_controller.dart';
 
-class ProfileForm extends StatefulWidget {
-  final String userId;
-  final ProfileController profileController;
-
-  const ProfileForm({
-    required this.userId,
-    required this.profileController,
-    super.key,
-  });
+class ProfileFormPage extends StatefulWidget {
+  const ProfileFormPage({super.key});
 
   @override
-  State<ProfileForm> createState() => _ProfileFormState();
+  State<ProfileFormPage> createState() => _ProfileFormPageState();
 }
 
-class _ProfileFormState extends State<ProfileForm> {
+class _ProfileFormPageState extends State<ProfileFormPage> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _bioController;
   late final TextEditingController _avatarController;
+
+  late final ProfileController _profileController;
+  late final String _userId;
 
   bool _isSaving = false;
   bool _isUploadingImage = false;
@@ -32,7 +31,12 @@ class _ProfileFormState extends State<ProfileForm> {
   @override
   void initState() {
     super.initState();
-    final currentProfile = widget.profileController.state.profile;
+
+    _profileController = IonProvider.of<ProfileController>(context);
+    final authController = IonProvider.of<AuthController>(context);
+
+    _userId = authController.state.user?.id ?? '';
+    final currentProfile = _profileController.state.profile;
 
     _bioController = TextEditingController(text: currentProfile?.bio ?? '');
     _avatarController = TextEditingController(
@@ -96,14 +100,14 @@ class _ProfileFormState extends State<ProfileForm> {
     setState(() => _isSaving = true);
 
     try {
-      await widget.profileController.updateBioProfile(
-        widget.userId,
+      await _profileController.updateBioProfile(
+        _userId,
         _bioController.text.trim(),
         _avatarController.text.trim(),
       );
 
       if (mounted) {
-        Navigator.of(context).pop();
+        context.pop();
         _showSnackBar('Perfil atualizado!');
       }
     } catch (e) {
@@ -138,27 +142,15 @@ class _ProfileFormState extends State<ProfileForm> {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    return Padding(
-      padding: EdgeInsets.only(
-        top: 24,
-        left: 24,
-        right: 24,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
+    return Scaffold(
+      appBar: AppBar(title: const Text('Editar Perfil'), centerTitle: true),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Form(
+          key: _formKey,
           child: Column(
-            mainAxisSize: .min,
-            crossAxisAlignment: .stretch,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Editar Perfil',
-                style: textTheme.titleLarge?.copyWith(fontWeight: .bold),
-                textAlign: .center,
-              ),
-              const SizedBox(height: 24),
-
               Center(
                 child: Stack(
                   children: [
@@ -185,7 +177,7 @@ class _ProfileFormState extends State<ProfileForm> {
                         child: Container(
                           decoration: const BoxDecoration(
                             color: Colors.black54,
-                            shape: .circle,
+                            shape: BoxShape.circle,
                           ),
                           child: const Center(
                             child: CircularProgressIndicator(
@@ -201,17 +193,16 @@ class _ProfileFormState extends State<ProfileForm> {
               Text(
                 'Formatos suportados: JPG, JPEG, PNG e SVG',
                 style: textTheme.bodySmall?.copyWith(color: theme.hintColor),
-                textAlign: .center,
+                textAlign: TextAlign.center,
               ),
-
               const SizedBox(height: 24),
 
               CustomTextFormField(
                 controller: _bioController,
                 labelText: 'Biografia',
                 prefixIcon: Icons.description,
-                textInputAction: .next,
-                keyboardType: .text,
+                textInputAction: TextInputAction.next,
+                keyboardType: TextInputType.text,
                 maxLines: 3,
                 maxLength: 120,
               ),
@@ -223,7 +214,7 @@ class _ProfileFormState extends State<ProfileForm> {
                     ? 'URL da imagem (dispositivo)'
                     : 'URL da imagem de perfil',
                 prefixIcon: _imageFromDevice ? Icons.cloud_done : Icons.link,
-                keyboardType: .url,
+                keyboardType: TextInputType.url,
                 validator: _validateAvatarUrl,
                 suffixIcon: _avatarController.text.isNotEmpty
                     ? IconButton(
@@ -235,7 +226,6 @@ class _ProfileFormState extends State<ProfileForm> {
                       )
                     : null,
               ),
-
               const SizedBox(height: 12),
 
               Row(
@@ -258,7 +248,7 @@ class _ProfileFormState extends State<ProfileForm> {
                       onPressed: _isUploadingImage || _isSaving
                           ? null
                           : () => _pickAndUploadImage(ImageSource.gallery),
-                      icon: Icon(Icons.photo_library, size: 18),
+                      icon: const Icon(Icons.photo_library, size: 18),
                       label: const Text('Galeria'),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -267,7 +257,6 @@ class _ProfileFormState extends State<ProfileForm> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 24),
 
               ElevatedButton(

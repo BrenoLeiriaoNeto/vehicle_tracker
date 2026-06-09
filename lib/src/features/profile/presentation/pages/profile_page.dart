@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:ionex/ionex.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/profile/presentation/controllers/profile_controller.dart';
-import 'package:vehicle_tracker/src/features/profile/presentation/widgets/profile_form.dart';
 import 'package:vehicle_tracker/src/features/profile/state/profile_state.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -38,9 +37,8 @@ class ProfilePage extends StatelessWidget {
           ),
         ],
       ),
-      body: IonBuilder<ProfileState>(
-        ion: profileController,
-        builder: (context, state) {
+      body: IonConsumer<ProfileController, ProfileState>(
+        builder: (context, state, controller) {
           if (state.status == .loading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -61,7 +59,8 @@ class ProfilePage extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 50,
-                  backgroundImage: profile.avatarUrl != null
+                  backgroundImage:
+                      profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
                       ? NetworkImage(profile.avatarUrl!)
                       : const AssetImage('assets/images/CP avatar.jpg')
                             as ImageProvider,
@@ -78,11 +77,7 @@ class ProfilePage extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 ElevatedButton.icon(
-                  onPressed: () => _openEditProfileModal(
-                    context,
-                    userUid!,
-                    profileController,
-                  ),
+                  onPressed: () => context.go('/profile/edit'),
                   label: const Text('Editar Perfil'),
                   icon: Icon(Icons.edit),
                 ),
@@ -136,18 +131,6 @@ class ProfilePage extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  void _openEditProfileModal(
-    BuildContext context,
-    String uid,
-    ProfileController controller,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => ProfileForm(userId: uid, profileController: controller),
     );
   }
 }

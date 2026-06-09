@@ -12,6 +12,7 @@ import 'package:vehicle_tracker/src/features/garage/presentation/controllers/gar
 import 'package:vehicle_tracker/src/features/garage/presentation/pages/add_car_page.dart';
 import 'package:vehicle_tracker/src/features/garage/presentation/pages/garage_page.dart';
 import 'package:vehicle_tracker/src/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:vehicle_tracker/src/features/profile/presentation/pages/profile_form_page.dart';
 import 'package:vehicle_tracker/src/features/profile/presentation/pages/profile_page.dart';
 import 'package:vehicle_tracker/src/features/trip/presentation/controllers/trip_controller.dart';
 import 'package:vehicle_tracker/src/features/trip/presentation/pages/new_trip_page.dart';
@@ -111,12 +112,51 @@ class AppRoutes {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(
-                path: profile,
-                builder: (context, state) => IonProvider(
-                  create: (_) => sl<ProfileController>(),
-                  child: const ProfilePage(),
-                ),
+              ShellRoute(
+                builder: (context, state, child) {
+                  return IonProvider(
+                    create: (_) => sl<ProfileController>(),
+                    child: child,
+                  );
+                },
+                routes: [
+                  GoRoute(
+                    path: profile,
+                    builder: (context, state) => const ProfilePage(),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        pageBuilder: (context, state) {
+                          return CustomTransitionPage(
+                            key: state.pageKey,
+                            child: ProfileFormPage(),
+                            transitionsBuilder:
+                                (
+                                  context,
+                                  animation,
+                                  secondaryAnimation,
+                                  child,
+                                ) {
+                                  return SlideTransition(
+                                    position: animation.drive(
+                                      Tween<Offset>(
+                                        begin: const Offset(1, 0),
+                                        end: .zero,
+                                      ).chain(
+                                        CurveTween(
+                                          curve: Curves.easeInOutCubic,
+                                        ),
+                                      ),
+                                    ),
+                                    child: child,
+                                  );
+                                },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
