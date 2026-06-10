@@ -96,4 +96,22 @@ class VehicleRepository implements IVehicleRepository {
       throw UnknownGarageFailure('Erro inesperado ao salvar: $e');
     }
   }
+
+  @override
+  Future<void> updateVehicleMileageAfterTrip(
+    String vehicleId,
+    double kmsDriven,
+  ) async {
+    try {
+      await _firestore.collection('garage').doc(vehicleId).update({
+        'currentKm': FieldValue.increment(kmsDriven),
+      });
+    } on FirebaseException catch (_) {
+      throw const GarageStorageFailure('Erro ao atualizar a kilometragem!');
+    } catch (e) {
+      throw UnknownGarageFailure(
+        'Erro inesperado ao tentar atualizar os kms: $e',
+      );
+    }
+  }
 }

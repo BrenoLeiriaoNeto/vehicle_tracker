@@ -101,7 +101,7 @@ class TripController extends Ion<TripState> {
     set(state.copyWith(isLoading: true));
 
     try {
-      await _completeTripUsecase(tripId, completedAt);
+      final completedTrip = await _completeTripUsecase(tripId, completedAt);
 
       set(
         state.copyWith(
@@ -109,6 +109,7 @@ class TripController extends Ion<TripState> {
           vehicleState: .parked,
           trip: null,
           isLoading: false,
+          errorMessage: null,
         ),
       );
     } catch (e) {

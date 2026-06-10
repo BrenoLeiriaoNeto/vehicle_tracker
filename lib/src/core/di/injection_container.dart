@@ -171,7 +171,11 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<GetTrips>(() => GetTrips(sl<ITripRepository>()));
 
   sl.registerLazySingleton<CompleteTripUsecase>(
-    () => CompleteTripUsecase(sl<ITripRepository>()),
+    () => CompleteTripUsecase(
+      sl<ITripRepository>(),
+      sl<IVehicleRepository>(),
+      sl<IProfileRepository>(),
+    ),
   );
 
   sl.registerLazySingleton<ITripRepository>(

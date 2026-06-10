@@ -20,7 +20,6 @@ class GarageController extends Ion<GarageState> {
         ),
       );
     } catch (e) {
-      print('ERRAO MONSTRO: $e');
       set(
         state.copyWith(
           status: .error,
