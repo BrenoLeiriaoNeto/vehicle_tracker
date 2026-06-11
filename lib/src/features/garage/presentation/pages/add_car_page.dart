@@ -193,7 +193,7 @@ class _AddCarPageState extends State<AddCarPage> {
 
                 const SizedBox(height: 32),
 
-                IonBuilder(
+                IonBuilder<AddVehicleState>(
                   ion: _controller,
                   builder: (context, state) {
                     final isLoading = state.status == .loading;

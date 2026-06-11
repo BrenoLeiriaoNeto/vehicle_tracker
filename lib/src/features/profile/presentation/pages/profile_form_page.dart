@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:ionex/ionex.dart';
 import 'package:vehicle_tracker/src/core/core_exports.dart';
 import 'package:vehicle_tracker/src/core/di/injection_container.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
@@ -32,7 +31,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
   void initState() {
     super.initState();
 
-    _profileController = IonProvider.of<ProfileController>(context);
+    _profileController = sl<ProfileController>();
 
     _userId = sl<AuthController>().state.user?.id ?? '';
 

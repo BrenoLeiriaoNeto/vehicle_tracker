@@ -1,8 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:ionex/ionex.dart';
 import 'package:vehicle_tracker/src/core/di/injection_container.dart';
-import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/vehicle_tracker_app.dart';
 
 void main() async {
@@ -12,10 +10,5 @@ void main() async {
 
   await initDependencies();
 
-  runApp(
-    IonProvider(
-      create: (_) => sl<AuthController>(),
-      child: const VehicleTrackerApp(),
-    ),
-  );
+  runApp(const VehicleTrackerApp());
 }

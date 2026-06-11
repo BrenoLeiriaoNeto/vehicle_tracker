@@ -16,12 +16,12 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  final _signupController = sl<SignupController>();
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _signupController = sl<SignupController>();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
@@ -47,18 +47,18 @@ class _SignupPageState extends State<SignupPage> {
     final state = _signupController.state;
 
     if (state.status == .success) {
-      final authController = IonProvider.of<AuthController>(context);
+      final authController = sl<AuthController>();
       authController.setAuthenticatedUser(state.createdUser);
     }
   }
 
-  void _submit(SignupController signupController) {
+  void _submit() {
     if (_formKey.currentState!.validate()) {
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
       final name = _nameController.text.trim();
 
-      signupController.signUp(email, password, name);
+      _signupController.signUp(email, password, name);
     }
   }
 
@@ -128,9 +128,7 @@ class _SignupPageState extends State<SignupPage> {
                   textInputAction: .next,
                   suffixIcon: IconButton(
                     onPressed: () {
-                      setState(() {
-                        () => _obscurePassword = !_obscurePassword;
-                      });
+                      setState(() => _obscurePassword = !_obscurePassword);
                     },
                     icon: Icon(
                       _obscurePassword
@@ -152,15 +150,15 @@ class _SignupPageState extends State<SignupPage> {
                   controller: _confirmPasswordController,
                   labelText: 'Confirmar Senha',
                   prefixIcon: Icons.lock_clock_outlined,
-                  obscureText: _obscurePassword,
+                  obscureText: _obscureConfirmPassword,
                   textInputAction: .done,
-                  onFieldSubmitted: (_) => _submit(_signupController),
+                  onFieldSubmitted: (_) => _submit(),
                   suffixIcon: IconButton(
                     onPressed: () {
-                      setState(() {
+                      setState(
                         () =>
-                            _obscureConfirmPassword = !_obscureConfirmPassword;
-                      });
+                            _obscureConfirmPassword = !_obscureConfirmPassword,
+                      );
                     },
                     icon: Icon(
                       _obscureConfirmPassword
@@ -184,7 +182,7 @@ class _SignupPageState extends State<SignupPage> {
                     return ElevatedButton(
                       onPressed: state.status == .loading
                           ? null
-                          : () => _submit(_signupController),
+                          : () => _submit(),
                       child: state.status == .loading
                           ? SizedBox(
                               height: 20,

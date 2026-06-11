@@ -15,17 +15,16 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final _authController = sl<AuthController>();
+  final _profileController = sl<ProfileController>();
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final auth = sl<AuthController>();
-      final profileController = IonProvider.of<ProfileController>(context);
-
-      if (auth.state.user != null &&
-          profileController.state.status == .initial) {
-        profileController.loadProfile(auth.state.user!.id);
+      if (_authController.state.user != null &&
+          _profileController.state.status == .initial) {
+        _profileController.loadProfile(_authController.state.user!.id);
       }
     });
   }
@@ -42,25 +41,25 @@ class _ProfilePageState extends State<ProfilePage> {
         actions: [
           IconButton(
             onPressed: () async {
-              final auth = sl<AuthController>();
-              final trip = sl<TripController>();
+              final tripController = sl<TripController>();
 
-              await trip.logoutClear();
+              await tripController.logoutClear();
 
-              await auth.logout();
+              await _authController.logout();
 
               await Future.delayed(.zero);
 
               if (mounted) {
-                auth.setUnauthenticatedUser();
+                _authController.setUnauthenticatedUser();
               }
             },
             icon: const Icon(Icons.logout),
           ),
         ],
       ),
-      body: IonConsumer<ProfileController, ProfileState>(
-        builder: (context, state, controller) {
+      body: IonBuilder<ProfileState>(
+        ion: _profileController,
+        builder: (context, state) {
           if (state.status == .loading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -75,7 +74,7 @@ class _ProfilePageState extends State<ProfilePage> {
             return const Center(child: Text('Perfil não encontrado.'));
           }
 
-          final userName = sl<AuthController>().state.user?.name ?? 'Usuário';
+          final userName = _authController.state.user?.name ?? 'Usuário';
 
           return SingleChildScrollView(
             padding: EdgeInsets.all(16.0),
@@ -83,8 +82,7 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 CircleAvatar(
                   radius: 50,
-                  backgroundImage:
-                      profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
+                  backgroundImage: profile.avatarUrl?.isNotEmpty == true
                       ? NetworkImage(profile.avatarUrl ?? '')
                       : const AssetImage('assets/images/CP avatar.jpg')
                             as ImageProvider,

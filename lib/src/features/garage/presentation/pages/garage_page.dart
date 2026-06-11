@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionex/ionex.dart';
+import 'package:vehicle_tracker/src/core/di/injection_container.dart';
 import 'package:vehicle_tracker/src/features/garage/presentation/controllers/garage_controller.dart';
 import 'package:vehicle_tracker/src/features/garage/state/garage_state.dart';
 
@@ -12,16 +13,15 @@ class GaragePage extends StatefulWidget {
 }
 
 class _GaragePageState extends State<GaragePage> {
+  final _garageController = sl<GarageController>();
   final _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final garageController = IonProvider.of<GarageController>(context);
-
-      if (garageController.state.vehicles.isEmpty) {
-        garageController.fetchVehicles();
+      if (_garageController.state.vehicles.isEmpty) {
+        _garageController.fetchVehicles();
       }
     });
   }
@@ -38,61 +38,65 @@ class _GaragePageState extends State<GaragePage> {
     final colors = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    return IonConsumer<GarageController, GarageState>(
-      builder: (context, state, garage) {
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text(
-              'Minha Garagem',
-              style: TextStyle(fontWeight: .bold, letterSpacing: 0.5),
-            ),
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            centerTitle: true,
-          ),
-          body: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: garage.filterVehicles,
-                  decoration: InputDecoration(
-                    hintText: 'Buscar por modelo, marca ou placa...',
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        garage.filterVehicles('');
-                      },
-                    ),
-                  ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Minha Garagem',
+          style: TextStyle(fontWeight: .bold, letterSpacing: 0.5),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _searchController,
+              onChanged: _garageController.filterVehicles,
+              decoration: InputDecoration(
+                hintText: 'Buscar por modelo, marca ou placa...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    _garageController.filterVehicles('');
+                  },
                 ),
               ),
+            ),
+          ),
 
-              Expanded(
-                child: _buildListContent(state, colors, textTheme, garage),
+          Expanded(
+            child: IonBuilder<GarageState>(
+              ion: _garageController,
+              builder: (context, state) => _buildListContent(
+                state,
+                colors,
+                textTheme,
+                _garageController,
               ),
-            ],
+            ),
           ),
+        ],
+      ),
 
-          floatingActionButton: FloatingActionButton(
-            heroTag: 'fab_garage',
-            backgroundColor: colors.primary,
-            child: const Icon(Icons.add, color: Colors.black, size: 28),
-            onPressed: () async {
-              final vehicleAdded = await context.push<bool>('/garage/new');
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'fab_garage',
+        backgroundColor: colors.primary,
+        child: const Icon(Icons.add, color: Colors.black, size: 28),
+        onPressed: () async {
+          final vehicleAdded = await context.push<bool>('/garage/new');
 
-              if (vehicleAdded == true && context.mounted) {
-                _searchController.clear();
+          if (vehicleAdded == true && context.mounted) {
+            _searchController.clear();
 
-                garage.fetchVehicles();
-              }
-            },
-          ),
-        );
-      },
+            _garageController.fetchVehicles();
+          }
+        },
+      ),
     );
   }
 
