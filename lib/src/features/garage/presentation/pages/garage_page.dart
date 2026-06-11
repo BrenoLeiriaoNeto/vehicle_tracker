@@ -19,7 +19,10 @@ class _GaragePageState extends State<GaragePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final garageController = IonProvider.of<GarageController>(context);
-      garageController.fetchVehicles();
+
+      if (garageController.state.vehicles.isEmpty) {
+        garageController.fetchVehicles();
+      }
     });
   }
 
@@ -37,9 +40,6 @@ class _GaragePageState extends State<GaragePage> {
 
     return IonConsumer<GarageController, GarageState>(
       builder: (context, state, garage) {
-        print(
-          '[UI REBUILD]: Status = ${state.status}, Carros = ${state.vehicles.length}',
-        );
         return Scaffold(
           appBar: AppBar(
             title: const Text(

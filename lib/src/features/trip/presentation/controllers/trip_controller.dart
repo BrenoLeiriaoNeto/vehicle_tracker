@@ -87,9 +87,9 @@ class TripController extends Ion<TripState> {
     }
   }
 
-  Future<void> getMyTrips(String userId) async {
+  Future<void> getMyTrips() async {
     try {
-      final trips = await _getTrips(userId);
+      final trips = await _getTrips();
 
       set(state.copyWith(trips: trips));
     } catch (e) {
@@ -101,7 +101,7 @@ class TripController extends Ion<TripState> {
     set(state.copyWith(isLoading: true));
 
     try {
-      final completedTrip = await _completeTripUsecase(tripId, completedAt);
+      await _completeTripUsecase(tripId, completedAt);
 
       set(
         state.copyWith(
@@ -109,7 +109,6 @@ class TripController extends Ion<TripState> {
           vehicleState: .parked,
           trip: null,
           isLoading: false,
-          errorMessage: null,
         ),
       );
     } catch (e) {

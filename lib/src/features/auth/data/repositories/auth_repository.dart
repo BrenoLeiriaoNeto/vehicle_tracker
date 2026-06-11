@@ -122,4 +122,15 @@ class AuthRepository implements IAuthRepository {
       throw UnknownAuthFailure();
     }
   }
+
+  @override
+  String getCurrentUserId() {
+    try {
+      final firebaseUser = _firebaseAuth.currentUser;
+
+      return firebaseUser?.uid ?? '';
+    } catch (e) {
+      throw Exception('Erro ao buscar userId: $e');
+    }
+  }
 }

@@ -20,6 +20,7 @@ dependencies:
   cloud_firestore: ^6.4.1
 
   geolocator: ^14.0.2
+  geocoding: ^4.0.0
   image_picker: ^1.2.2
   equatable: ^2.0.8
   get_it: ^9.2.1

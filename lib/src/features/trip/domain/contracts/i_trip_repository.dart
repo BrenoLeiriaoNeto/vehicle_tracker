@@ -9,5 +9,6 @@ abstract class ITripRepository {
   );
   Future<Trip> completeTrip(String tripId, DateTime completedAt);
   Future<List<Trip>> getTripHistory(String userId);
+  Future<List<Trip>> getTrips(String userId);
   Stream<Trip?> watchActiveTrip(String userId);
 }

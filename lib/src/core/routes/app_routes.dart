@@ -111,7 +111,26 @@ class AppRoutes {
                 routes: [
                   GoRoute(
                     path: 'new',
-                    builder: (context, state) => const NewTripPage(),
+                    pageBuilder: (context, state) {
+                      return CustomTransitionPage(
+                        key: state.pageKey,
+                        child: NewTripPage(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                              return SlideTransition(
+                                position: animation.drive(
+                                  Tween<Offset>(
+                                    begin: const Offset(1, 0),
+                                    end: .zero,
+                                  ).chain(
+                                    CurveTween(curve: Curves.easeInOutCubic),
+                                  ),
+                                ),
+                                child: child,
+                              );
+                            },
+                      );
+                    },
                   ),
                 ],
               ),

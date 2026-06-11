@@ -21,22 +21,26 @@ class TripHistoryCard extends StatelessWidget {
           crossAxisAlignment: .start,
           children: [
             Row(
-              mainAxisAlignment: .spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.directions_car,
-                      color: theme.colorScheme.primary,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(trip.vehicleName, style: theme.textTheme.titleMedium),
-                  ],
+                Icon(
+                  Icons.directions_car,
+                  color: theme.colorScheme.primary,
+                  size: 20,
                 ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    trip.vehicleName,
+                    style: theme.textTheme.titleMedium,
+                    overflow: .ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+
                 _buildStatusBadge(theme, trip.status),
               ],
             ),
+
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 12),
               child: Divider(height: 1, color: Colors.white10),

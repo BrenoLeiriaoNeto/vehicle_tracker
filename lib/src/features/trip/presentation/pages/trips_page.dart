@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionex/ionex.dart';
-import 'package:vehicle_tracker/src/core/di/injection_container.dart';
-import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/trip/presentation/controllers/trip_controller.dart';
 import 'package:vehicle_tracker/src/features/trip/presentation/widgets/trip_filter_section.dart';
 import 'package:vehicle_tracker/src/features/trip/presentation/widgets/trip_history_card.dart';
@@ -23,11 +21,10 @@ class _TripsPageState extends State<TripsPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final user = sl<AuthController>().state.user;
       final tripController = IonProvider.of<TripController>(context);
 
-      if (user != null) {
-        tripController.getMyTrips(user.id);
+      if (tripController.state.trips == null) {
+        tripController.getMyTrips();
       }
     });
   }
@@ -37,63 +34,63 @@ class _TripsPageState extends State<TripsPage> {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
-    final tripController = IonProvider.of<TripController>(context);
+    return IonConsumer<TripController, TripState>(
+      builder: (context, state, tripController) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Histórico de Viagens', style: textTheme.titleLarge),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            actions: [
+              IconButton(
+                onPressed: () => tripController.getMyTrips(),
+                icon: const Icon(Icons.refresh),
+              ),
+            ],
+          ),
+          body: Column(
+            children: [
+              TripFilterSection(
+                selectedFilter: _selectedFilter,
+                onFilterChanged: (newFilter) {
+                  setState(() => _selectedFilter = newFilter);
+                },
+              ),
+              Expanded(
+                child:
+                    state.isLoading &&
+                        (state.trips == null || state.trips!.isEmpty)
+                    ? const Center(child: CircularProgressIndicator())
+                    : () {
+                        final trips = _getFilteredList(state.trips ?? []);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Histórico de Viagens', style: textTheme.titleLarge),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: () {
-              final user = sl<AuthController>().state.user;
-              if (user != null) {
-                tripController.getMyTrips(user.id);
+                        if (trips.isEmpty) return _buildEmptyState(theme);
+
+                        return ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: trips.length,
+                          itemBuilder: (context, index) {
+                            return TripHistoryCard(trip: trips[index]);
+                          },
+                        );
+                      }(),
+              ),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            heroTag: 'fab_trips',
+            onPressed: () async {
+              final hasNewTrip = await context.push<bool>('/trips/new');
+
+              if (hasNewTrip == true && context.mounted) {
+                tripController.getMyTrips();
               }
             },
-            icon: const Icon(Icons.refresh),
+            backgroundColor: theme.colorScheme.primary,
+            child: const Icon(Icons.add_road, color: Colors.black),
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          TripFilterSection(
-            selectedFilter: _selectedFilter,
-            onFilterChanged: (newFilter) {
-              setState(() => _selectedFilter = newFilter);
-            },
-          ),
-          Expanded(
-            child: IonBuilder<TripState>(
-              ion: tripController,
-              builder: (context, state) {
-                if (state.isLoading &&
-                    (state.trips == null || state.trips!.isEmpty)) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final trips = _getFilteredList(state.trips ?? []);
-
-                if (trips.isEmpty) return _buildEmptyState(theme);
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: trips.length,
-                  itemBuilder: (context, index) =>
-                      TripHistoryCard(trip: trips[index]),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'fab_trips',
-        onPressed: () => context.push('/trips/new'),
-        backgroundColor: theme.colorScheme.primary,
-        child: const Icon(Icons.add_road, color: Colors.black),
-      ),
+        );
+      },
     );
   }
 

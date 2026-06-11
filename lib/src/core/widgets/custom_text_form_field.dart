@@ -12,6 +12,7 @@ class CustomTextFormField extends StatelessWidget {
   final ValueChanged<String>? onFieldSubmitted;
   final int? maxLines;
   final int? maxLength;
+  final bool? enabled;
 
   const CustomTextFormField({
     super.key,
@@ -26,6 +27,7 @@ class CustomTextFormField extends StatelessWidget {
     this.onFieldSubmitted,
     this.maxLines,
     this.maxLength,
+    this.enabled,
   });
 
   @override
@@ -33,6 +35,7 @@ class CustomTextFormField extends StatelessWidget {
     if (!obscureText) {
       return TextFormField(
         controller: controller,
+        enabled: enabled,
         keyboardType: keyboardType,
         textInputAction: textInputAction,
         onFieldSubmitted: onFieldSubmitted,
@@ -48,6 +51,7 @@ class CustomTextFormField extends StatelessWidget {
     }
     return TextFormField(
       controller: controller,
+      enabled: enabled,
       obscureText: obscureText,
       keyboardType: keyboardType,
       textInputAction: textInputAction,

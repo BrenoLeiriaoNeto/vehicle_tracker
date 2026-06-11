@@ -61,7 +61,7 @@ class TripModel extends Trip {
   String toJson() => json.encode(toMap());
 
   factory TripModel.fromJson(String source) =>
-      TripModel.fromJson(json.decode(source));
+      TripModel.fromMap(json.decode(source));
 
   factory TripModel.fromEntity(Trip trip) {
     return TripModel(

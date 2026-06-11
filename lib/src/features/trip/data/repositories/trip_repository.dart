@@ -54,6 +54,20 @@ class TripRepository implements ITripRepository {
   }
 
   @override
+  Future<List<Trip>> getTrips(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('trips')
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      return snapshot.docs.map((doc) => TripModel.fromMap(doc.data())).toList();
+    } catch (e) {
+      throw Exception('Erro ao buscar viagens: $e');
+    }
+  }
+
+  @override
   Future<Trip> updateTrip(
     String tripId,
     double currentKm,

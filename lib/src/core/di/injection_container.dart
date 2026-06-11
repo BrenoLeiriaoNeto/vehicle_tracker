@@ -84,7 +84,7 @@ Future<void> initDependencies() async {
   // ===========================================================================
   // 🚗 FEATURE - GARAGE
   // ===========================================================================
-  sl.registerFactory<GarageController>(
+  sl.registerLazySingleton<GarageController>(
     () => GarageController(sl<GetMyGarageUsecase>()),
   );
   sl.registerFactory<AddVechileController>(
@@ -119,7 +119,7 @@ Future<void> initDependencies() async {
   // ===========================================================================
   // 👤 FEATURE - PROFILE
   // ===========================================================================
-  sl.registerFactory<ProfileController>(
+  sl.registerLazySingleton<ProfileController>(
     () => ProfileController(
       sl<GetProfileUsecase>(),
       sl<UpdateProfileUsecase>(),
@@ -168,7 +168,9 @@ Future<void> initDependencies() async {
     () => UpdateTripUsecase(sl<ITripRepository>()),
   );
 
-  sl.registerLazySingleton<GetTrips>(() => GetTrips(sl<ITripRepository>()));
+  sl.registerLazySingleton<GetTrips>(
+    () => GetTrips(sl<ITripRepository>(), sl<IAuthRepository>()),
+  );
 
   sl.registerLazySingleton<CompleteTripUsecase>(
     () => CompleteTripUsecase(
