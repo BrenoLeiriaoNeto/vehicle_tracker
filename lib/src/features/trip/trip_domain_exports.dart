@@ -4,6 +4,7 @@ export 'domain/entities/trip.dart';
 export 'domain/contracts/i_trip_repository.dart';
 export 'domain/usecases/complete_trip_usecase.dart';
 export 'domain/usecases/get_trips.dart';
-export 'domain/usecases/start_trip_usecase.dart';
+export 'domain/usecases/create_trip_usecase.dart';
 export 'domain/usecases/update_trip_usecase.dart';
 export 'domain/usecases/watch_trip_usecase.dart';
+export 'domain/usecases/get_in_progress_trips_usecase.dart';

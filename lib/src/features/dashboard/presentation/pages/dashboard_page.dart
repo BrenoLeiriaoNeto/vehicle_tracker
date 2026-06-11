@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:ionex/ionex.dart';
 import 'package:vehicle_tracker/src/core/core_exports.dart';
 import 'package:vehicle_tracker/src/core/di/injection_container.dart';
+import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:vehicle_tracker/src/features/dashboard/presentation/state/weather_state.dart';
+import 'package:vehicle_tracker/src/features/dashboard/presentation/widgets/live_trip_card.dart';
+import 'package:vehicle_tracker/src/features/trip/presentation/controllers/trip_controller.dart';
+import 'package:vehicle_tracker/src/features/trip/state/trip_state.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -19,8 +23,13 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
     _dashboardController = sl<DashboardController>();
-
     _dashboardController.fetchWeather();
+
+    final userId = sl<AuthController>().state.user?.id ?? '';
+
+    if (userId.isNotEmpty) {
+      sl<TripController>().fetchActiveTrip(userId);
+    }
   }
 
   @override
@@ -29,6 +38,7 @@ class _DashboardPageState extends State<DashboardPage> {
     final colors = theme.colorScheme;
     final textTheme = theme.textTheme;
     final themeController = sl<ThemeController>();
+    final tripController = sl<TripController>();
 
     return Scaffold(
       appBar: AppBar(
@@ -65,7 +75,13 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       body: RefreshIndicator(
         color: colors.primary,
-        onRefresh: () => _dashboardController.fetchWeather(),
+        onRefresh: () async {
+          final userId = sl<AuthController>().state.user?.id ?? '';
+          await Future.wait([
+            _dashboardController.fetchWeather(),
+            if (userId.isNotEmpty) sl<TripController>().fetchActiveTrip(userId),
+          ]);
+        },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16.0),
@@ -198,14 +214,24 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               const SizedBox(height: 12),
 
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: Text(
-                    'Nenhum veículo em trânsito no momento.',
-                    style: textTheme.bodyMedium,
-                  ),
-                ),
+              IonBuilder<TripState>(
+                ion: tripController,
+                builder: (context, state) {
+                  final activeTrip = state.trip;
+
+                  if (activeTrip == null || state.status != .inProgress) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40),
+                        child: Text(
+                          'Nenhum veículo em trânsito no momento.',
+                          style: textTheme.bodyMedium,
+                        ),
+                      ),
+                    );
+                  }
+                  return LiveTripCard(trip: activeTrip);
+                },
               ),
             ],
           ),

@@ -106,6 +106,10 @@ class _NewTripPageState extends State<NewTripPage> {
 
       await sl<TripController>().createTrip(newTrip);
 
+      if (startImmediatly == true) {
+        sl<TripController>().startLocalSimulation();
+      }
+
       if (mounted) {
         context.pop(true);
 

@@ -149,9 +149,10 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<TripController>(
     () => TripController(
       sl<WatchTripUsecase>(),
-      sl<StartTripUsecase>(),
+      sl<CreateTripUsecase>(),
       sl<UpdateTripUsecase>(),
       sl<GetTrips>(),
+      sl<GetInProgressTripsUsecase>(),
       sl<CompleteTripUsecase>(),
     ),
   );
@@ -160,8 +161,8 @@ Future<void> initDependencies() async {
     () => WatchTripUsecase(sl<ITripRepository>()),
   );
 
-  sl.registerLazySingleton<StartTripUsecase>(
-    () => StartTripUsecase(sl<ITripRepository>()),
+  sl.registerLazySingleton<CreateTripUsecase>(
+    () => CreateTripUsecase(sl<ITripRepository>()),
   );
 
   sl.registerLazySingleton<UpdateTripUsecase>(
@@ -170,6 +171,10 @@ Future<void> initDependencies() async {
 
   sl.registerLazySingleton<GetTrips>(
     () => GetTrips(sl<ITripRepository>(), sl<IAuthRepository>()),
+  );
+
+  sl.registerLazySingleton<GetInProgressTripsUsecase>(
+    () => GetInProgressTripsUsecase(sl<ITripRepository>()),
   );
 
   sl.registerLazySingleton<CompleteTripUsecase>(

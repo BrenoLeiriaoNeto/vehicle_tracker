@@ -12,10 +12,11 @@ class CompleteTripUsecase {
     this._vehicleRepository,
     this._profileRepository,
   );
-  Future<Trip> call(String tripId, DateTime completedAt) async {
+  Future<Trip> call(String tripId, DateTime completedAt, double finalKm) async {
     final completedTrip = await _tripRepository.completeTrip(
       tripId,
       completedAt,
+      finalKm,
     );
 
     final kmsDriven = completedTrip.currentKm;

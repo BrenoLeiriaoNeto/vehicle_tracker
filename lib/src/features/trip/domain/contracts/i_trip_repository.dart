@@ -7,8 +7,13 @@ abstract class ITripRepository {
     double currentKm,
     TripVehicleState state,
   );
-  Future<Trip> completeTrip(String tripId, DateTime completedAt);
+  Future<Trip> completeTrip(
+    String tripId,
+    DateTime completedAt,
+    double finalKm,
+  );
   Future<List<Trip>> getTripHistory(String userId);
+  Future<List<Trip>> getInProgressTrips(String userId);
   Future<List<Trip>> getTrips(String userId);
   Stream<Trip?> watchActiveTrip(String userId);
 }

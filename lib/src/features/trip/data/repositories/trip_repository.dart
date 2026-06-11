@@ -9,12 +9,17 @@ class TripRepository implements ITripRepository {
   TripRepository(this._firestore);
 
   @override
-  Future<Trip> completeTrip(String tripId, DateTime completedAt) async {
+  Future<Trip> completeTrip(
+    String tripId,
+    DateTime completedAt,
+    double finalKm,
+  ) async {
     try {
       await _firestore.collection(_collection).doc(tripId).update({
         'status': TripStatus.completed.name,
         'vehicleState': TripVehicleState.parked.name,
         'completedAt': completedAt.toIso8601String(),
+        'currentKm': finalKm,
       });
 
       final doc = await _firestore.collection(_collection).doc(tripId).get();
@@ -104,5 +109,20 @@ class TripRepository implements ITripRepository {
         .handleError((e) {
           throw Exception('Erro ao trazer informações da viagem: $e');
         });
+  }
+
+  @override
+  Future<List<Trip>> getInProgressTrips(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection(_collection)
+          .where('userId', isEqualTo: userId)
+          .where('status', isEqualTo: TripStatus.inProgress.name)
+          .get();
+
+      return snapshot.docs.map((doc) => TripModel.fromMap(doc.data())).toList();
+    } catch (e) {
+      throw Exception('Erro ao buscar lista de viagens ativas: $e');
+    }
   }
 }
