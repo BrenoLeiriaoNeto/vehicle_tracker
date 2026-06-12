@@ -161,11 +161,15 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                               _validateAvatarUrl(_avatarController.text) == null
                           ? NetworkImage(_avatarController.text.trim())
                           : null,
-                      onBackgroundImageError: (exception, stackTrace) {
-                        debugPrint(
-                          'Erro ao carregar imagem de perfil: $exception',
-                        );
-                      },
+                      onBackgroundImageError:
+                          _avatarController.text.trim().isNotEmpty &&
+                              _validateAvatarUrl(_avatarController.text) == null
+                          ? (exception, stackTrace) {
+                              debugPrint(
+                                'Erro ao carregar imagem de perfil: $exception',
+                              );
+                            }
+                          : null,
                       child:
                           _avatarController.text.trim().isEmpty ||
                               _validateAvatarUrl(_avatarController.text) != null
