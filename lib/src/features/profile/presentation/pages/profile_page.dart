@@ -1,26 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ionex/ionex.dart';
+import 'package:vehicle_tracker/src/core/di/injection_container.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/profile/presentation/controllers/profile_controller.dart';
-import 'package:vehicle_tracker/src/features/profile/presentation/widgets/profile_form.dart';
 import 'package:vehicle_tracker/src/features/profile/state/profile_state.dart';
+import 'package:vehicle_tracker/src/features/trip/presentation/controllers/trip_controller.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final _authController = sl<AuthController>();
+  final _profileController = sl<ProfileController>();
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_authController.state.user != null &&
+          _profileController.state.status == .initial) {
+        _profileController.loadProfile(_authController.state.user!.id);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-
-    final authController = IonProvider.of<AuthController>(context);
-    final profileController = IonProvider.of<ProfileController>(context);
-
-    final userUid = authController.state.user?.id;
-
-    if (userUid != null && profileController.state.status == .initial) {
-      Future.microtask(() => profileController.loadProfile(userUid));
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -28,13 +40,25 @@ class ProfilePage extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () => authController.logout(),
+            onPressed: () async {
+              final tripController = sl<TripController>();
+
+              await tripController.logoutClear();
+
+              await _authController.logout();
+
+              await Future.delayed(.zero);
+
+              if (mounted) {
+                _authController.setUnauthenticatedUser();
+              }
+            },
             icon: const Icon(Icons.logout),
           ),
         ],
       ),
       body: IonBuilder<ProfileState>(
-        ion: profileController,
+        ion: _profileController,
         builder: (context, state) {
           if (state.status == .loading) {
             return const Center(child: CircularProgressIndicator());
@@ -50,20 +74,22 @@ class ProfilePage extends StatelessWidget {
             return const Center(child: Text('Perfil não encontrado.'));
           }
 
+          final userName = _authController.state.user?.name ?? 'Usuário';
+
           return SingleChildScrollView(
             padding: EdgeInsets.all(16.0),
             child: Column(
               children: [
                 CircleAvatar(
                   radius: 50,
-                  backgroundImage: profile.avatarUrl != null
-                      ? NetworkImage(profile.avatarUrl!)
+                  backgroundImage: profile.avatarUrl?.isNotEmpty == true
+                      ? NetworkImage(profile.avatarUrl ?? '')
                       : const AssetImage('assets/images/CP avatar.jpg')
                             as ImageProvider,
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  authController.state.user?.name ?? 'Usuário',
+                  userName,
                   style: textTheme.titleLarge?.copyWith(fontWeight: .bold),
                 ),
                 Text(
@@ -73,11 +99,7 @@ class ProfilePage extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 ElevatedButton.icon(
-                  onPressed: () => _openEditProfileModal(
-                    context,
-                    userUid!,
-                    profileController,
-                  ),
+                  onPressed: () => context.go('/profile/edit'),
                   label: const Text('Editar Perfil'),
                   icon: Icon(Icons.edit),
                 ),
@@ -131,18 +153,6 @@ class ProfilePage extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  void _openEditProfileModal(
-    BuildContext context,
-    String uid,
-    ProfileController controller,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => ProfileForm(userId: uid, profileController: controller),
     );
   }
 }

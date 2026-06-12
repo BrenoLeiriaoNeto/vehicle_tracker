@@ -15,4 +15,5 @@ abstract class IAuthRepository {
   Future<void> logout();
 
   Future<UserEntity?> getCurrentUser(String id);
+  String getCurrentUserId();
 }

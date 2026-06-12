@@ -4,4 +4,5 @@ abstract class IProfileRepository {
   Future<Profile> getProfile(String id);
   Future<Profile> updateProfile(String id, Profile profile);
   Future<void> deleteProfile(String id);
+  Future<void> updateProfileStatsAfterTrip(String userId, double kmsDriven);
 }

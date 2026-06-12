@@ -12,6 +12,9 @@ import 'package:vehicle_tracker/src/features/garage/presentation/controllers/add
 import 'package:vehicle_tracker/src/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:vehicle_tracker/src/features/profile/profile_data_exports.dart';
 import 'package:vehicle_tracker/src/features/profile/profile_domain_exports.dart';
+import 'package:vehicle_tracker/src/features/trip/presentation/controllers/trip_controller.dart';
+import 'package:vehicle_tracker/src/features/trip/trip_data_exports.dart';
+import 'package:vehicle_tracker/src/features/trip/trip_domain_exports.dart';
 import 'package:weather/weather.dart';
 
 import '../../core/core_exports.dart';
@@ -56,13 +59,19 @@ Future<void> initDependencies() async {
   // 🔑 FEATURE - AUTH
   // ===========================================================================
   sl.registerLazySingleton<AuthController>(
-    () => AuthController(sl<LoginWithEmailPasswordUsecase>()),
+    () => AuthController(
+      sl<LoginWithEmailPasswordUsecase>(),
+      sl<LogoutUsecase>(),
+    ),
   );
   sl.registerLazySingleton<IAuthRepository>(
     () => AuthRepository(sl<FirebaseAuth>(), sl<FirebaseFirestore>()),
   );
   sl.registerLazySingleton<LoginWithEmailPasswordUsecase>(
     () => LoginWithEmailPasswordUsecase(sl<IAuthRepository>()),
+  );
+  sl.registerLazySingleton<LogoutUsecase>(
+    () => LogoutUsecase(sl<IAuthRepository>()),
   );
   sl.registerLazySingleton<SignupWithEmailPassword>(
     () => SignupWithEmailPassword(sl<IAuthRepository>()),
@@ -75,7 +84,7 @@ Future<void> initDependencies() async {
   // ===========================================================================
   // 🚗 FEATURE - GARAGE
   // ===========================================================================
-  sl.registerFactory<GarageController>(
+  sl.registerLazySingleton<GarageController>(
     () => GarageController(sl<GetMyGarageUsecase>()),
   );
   sl.registerFactory<AddVechileController>(
@@ -110,7 +119,7 @@ Future<void> initDependencies() async {
   // ===========================================================================
   // 👤 FEATURE - PROFILE
   // ===========================================================================
-  sl.registerFactory<ProfileController>(
+  sl.registerLazySingleton<ProfileController>(
     () => ProfileController(
       sl<GetProfileUsecase>(),
       sl<UpdateProfileUsecase>(),
@@ -132,5 +141,51 @@ Future<void> initDependencies() async {
 
   sl.registerLazySingleton<IProfileRepository>(
     () => ProfileRepository(sl<FirebaseFirestore>()),
+  );
+
+  // ===========================================================================
+  // 🧭 FEATURE / TRIP
+  // ===========================================================================
+  sl.registerLazySingleton<TripController>(
+    () => TripController(
+      sl<WatchTripUsecase>(),
+      sl<CreateTripUsecase>(),
+      sl<UpdateTripUsecase>(),
+      sl<GetTrips>(),
+      sl<GetInProgressTripsUsecase>(),
+      sl<CompleteTripUsecase>(),
+    ),
+  );
+
+  sl.registerLazySingleton<WatchTripUsecase>(
+    () => WatchTripUsecase(sl<ITripRepository>()),
+  );
+
+  sl.registerLazySingleton<CreateTripUsecase>(
+    () => CreateTripUsecase(sl<ITripRepository>()),
+  );
+
+  sl.registerLazySingleton<UpdateTripUsecase>(
+    () => UpdateTripUsecase(sl<ITripRepository>()),
+  );
+
+  sl.registerLazySingleton<GetTrips>(
+    () => GetTrips(sl<ITripRepository>(), sl<IAuthRepository>()),
+  );
+
+  sl.registerLazySingleton<GetInProgressTripsUsecase>(
+    () => GetInProgressTripsUsecase(sl<ITripRepository>()),
+  );
+
+  sl.registerLazySingleton<CompleteTripUsecase>(
+    () => CompleteTripUsecase(
+      sl<ITripRepository>(),
+      sl<IVehicleRepository>(),
+      sl<IProfileRepository>(),
+    ),
+  );
+
+  sl.registerLazySingleton<ITripRepository>(
+    () => TripRepository(sl<FirebaseFirestore>()),
   );
 }

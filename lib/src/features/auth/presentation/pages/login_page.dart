@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ionex/ionex.dart';
 import 'package:vehicle_tracker/src/core/core_exports.dart';
+import 'package:vehicle_tracker/src/core/di/injection_container.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:vehicle_tracker/src/features/auth/presentation/state/auth_state.dart';
 
 class LoginPage extends StatefulWidget {
   final VoidCallback onFlip;
@@ -13,6 +15,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _authController = sl<AuthController>();
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -40,8 +43,6 @@ class _LoginPageState extends State<LoginPage> {
     final textTheme = theme.textTheme;
     final mediaQuery = MediaQuery.of(context);
 
-    final authController = IonProvider.of<AuthController>(context);
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -54,8 +55,8 @@ class _LoginPageState extends State<LoginPage> {
                   mediaQuery.padding.bottom,
             ),
             child: IntrinsicHeight(
-              child: IonBuilder(
-                ion: authController,
+              child: IonBuilder<AuthState>(
+                ion: _authController,
                 builder: (context, state) {
                   if (state.status == .error && state.errorMessage != null) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -125,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                           prefixIcon: Icons.lock_outline,
                           obscureText: _obscurePassword,
                           textInputAction: .done,
-                          onFieldSubmitted: (_) => _submit(authController),
+                          onFieldSubmitted: (_) => _submit(_authController),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword
@@ -152,12 +153,12 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: 24),
 
                         IonBuilder(
-                          ion: authController,
+                          ion: _authController,
                           builder: (context, state) {
                             return ElevatedButton(
                               onPressed: state.status == .loading
                                   ? null
-                                  : () => _submit(authController),
+                                  : () => _submit(_authController),
                               child: state.status == .loading
                                   ? const SizedBox(
                                       height: 20,

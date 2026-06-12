@@ -13,13 +13,14 @@ dependencies:
 
   cupertino_icons: ^1.0.8
 
-  ionex: ^1.1.0
+  ionex: ^2.0.0
 
   firebase_core: ^4.9.0
   firebase_auth: ^6.5.1
   cloud_firestore: ^6.4.1
 
   geolocator: ^14.0.2
+  geocoding: ^4.0.0
   image_picker: ^1.2.2
   equatable: ^2.0.8
   get_it: ^9.2.1

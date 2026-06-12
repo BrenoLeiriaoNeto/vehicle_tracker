@@ -53,4 +53,19 @@ class ProfileRepository implements IProfileRepository {
       throw Exception('Erro ao atualizar dados do perfil: $e');
     }
   }
+
+  @override
+  Future<void> updateProfileStatsAfterTrip(
+    String userId,
+    double kmsDriven,
+  ) async {
+    try {
+      await _firestore.collection('users').doc(userId).update({
+        'sumKilometers': FieldValue.increment(kmsDriven),
+        'tripsCompleted': FieldValue.increment(1),
+      });
+    } catch (e) {
+      throw Exception('Erro ao atualizar estatísticas do perfil: $e');
+    }
+  }
 }

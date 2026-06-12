@@ -5,6 +5,9 @@ import 'package:vehicle_tracker/src/core/di/injection_container.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:vehicle_tracker/src/features/dashboard/presentation/state/weather_state.dart';
+import 'package:vehicle_tracker/src/features/dashboard/presentation/widgets/live_trip_card.dart';
+import 'package:vehicle_tracker/src/features/trip/presentation/controllers/trip_controller.dart';
+import 'package:vehicle_tracker/src/features/trip/state/trip_state.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -20,8 +23,13 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
     _dashboardController = sl<DashboardController>();
-
     _dashboardController.fetchWeather();
+
+    final userId = sl<AuthController>().state.user?.id ?? '';
+
+    if (userId.isNotEmpty) {
+      sl<TripController>().fetchActiveTrip(userId);
+    }
   }
 
   @override
@@ -30,8 +38,7 @@ class _DashboardPageState extends State<DashboardPage> {
     final colors = theme.colorScheme;
     final textTheme = theme.textTheme;
     final themeController = sl<ThemeController>();
-
-    final authController = IonProvider.of<AuthController>(context);
+    final tripController = sl<TripController>();
 
     return Scaffold(
       appBar: AppBar(
@@ -62,21 +69,19 @@ class _DashboardPageState extends State<DashboardPage> {
               );
             },
           ),
-          IconButton(
-            onPressed: () => authController.logout(),
-            icon: const Icon(
-              Icons.power_settings_new,
-              color: Colors.redAccent,
-              size: 28,
-            ),
-            tooltip: 'Sair',
-          ),
+
           const SizedBox(width: 8),
         ],
       ),
       body: RefreshIndicator(
         color: colors.primary,
-        onRefresh: () => _dashboardController.fetchWeather(),
+        onRefresh: () async {
+          final userId = sl<AuthController>().state.user?.id ?? '';
+          await Future.wait([
+            _dashboardController.fetchWeather(),
+            if (userId.isNotEmpty) sl<TripController>().fetchActiveTrip(userId),
+          ]);
+        },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16.0),
@@ -124,7 +129,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   }
 
                   if (state.status == .success && state.weather != null) {
-                    final weather = state.weather!;
+                    final weather = state.weather;
                     return Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -143,7 +148,7 @@ class _DashboardPageState extends State<DashboardPage> {
                               Row(
                                 children: [
                                   Image.network(
-                                    'https://openweathermap.org/img/wn/${weather.iconCode}@2x.png',
+                                    'https://openweathermap.org/img/wn/${weather?.iconCode}@2x.png',
                                     width: 44,
                                     height: 44,
                                     errorBuilder: (_, _, _) => Icon(
@@ -152,30 +157,35 @@ class _DashboardPageState extends State<DashboardPage> {
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  Text(
-                                    weather.description.toUpperCase(),
-                                    style:
-                                        textTheme.titleSmall?.copyWith(
-                                          fontWeight: .bold,
-                                          letterSpacing: 0.5,
-                                        ) ??
-                                        TextStyle(color: colors.onSurface),
-                                  ),
+
+                                  weather != null
+                                      ? Text(
+                                          weather.description.toUpperCase(),
+                                          style:
+                                              textTheme.titleSmall?.copyWith(
+                                                fontWeight: .bold,
+                                                letterSpacing: 0.5,
+                                              ) ??
+                                              TextStyle(
+                                                color: colors.onSurface,
+                                              ),
+                                        )
+                                      : const SizedBox.shrink(),
                                 ],
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                '💨 Vento: ${weather.windSpeed.toStringAsFixed(1)} m/s  |  💧 Umidade: ${weather.humidity}%',
+                                '💨 Vento: ${weather?.windSpeed.toStringAsFixed(1)} m/s  |  💧 Umidade: ${weather?.humidity}%',
                                 style: textTheme.bodySmall,
                               ),
                               Text(
-                                '🌡️ Sensação: ${weather.temperatureFeelsLike.toStringAsFixed(1)}°C',
+                                '🌡️ Sensação: ${weather?.temperatureFeelsLike.toStringAsFixed(1)}°C',
                                 style: textTheme.bodySmall,
                               ),
                             ],
                           ),
                           Text(
-                            '${weather.temperature.toStringAsFixed(0)}°C',
+                            '${weather?.temperature.toStringAsFixed(0)}°C',
                             style: TextStyle(
                               fontSize: 46,
                               fontWeight: .w900,
@@ -204,14 +214,24 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               const SizedBox(height: 12),
 
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: Text(
-                    'Nenhum veículo em trânsito no momento.',
-                    style: textTheme.bodyMedium,
-                  ),
-                ),
+              IonBuilder<TripState>(
+                ion: tripController,
+                builder: (context, state) {
+                  final activeTrip = state.trip;
+
+                  if (activeTrip == null || state.status != .inProgress) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40),
+                        child: Text(
+                          'Nenhum veículo em trânsito no momento.',
+                          style: textTheme.bodyMedium,
+                        ),
+                      ),
+                    );
+                  }
+                  return LiveTripCard(trip: activeTrip);
+                },
               ),
             ],
           ),
