@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ionex/ionex.dart';
 import 'package:vehicle_tracker/src/core/di/injection_container.dart';
 import 'package:vehicle_tracker/src/features/garage/presentation/controllers/garage_controller.dart';
+import 'package:vehicle_tracker/src/features/garage/presentation/widgets/vehicle_card.dart';
 import 'package:vehicle_tracker/src/features/garage/state/garage_state.dart';
 
 class GaragePage extends StatefulWidget {
@@ -48,39 +49,43 @@ class _GaragePageState extends State<GaragePage> {
         elevation: 0,
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              onChanged: _garageController.filterVehicles,
-              decoration: InputDecoration(
-                hintText: 'Buscar por modelo, marca ou placa...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    _searchController.clear();
-                    _garageController.filterVehicles('');
-                  },
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                controller: _searchController,
+                onChanged: _garageController.filterVehicles,
+                decoration: InputDecoration(
+                  hintText: 'Buscar por modelo, marca ou placa...',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      _searchController.clear();
+                      _garageController.filterVehicles('');
+                    },
+                  ),
                 ),
               ),
             ),
-          ),
 
-          Expanded(
-            child: IonBuilder<GarageState>(
-              ion: _garageController,
-              builder: (context, state) => _buildListContent(
-                state,
-                colors,
-                textTheme,
-                _garageController,
+            Expanded(
+              child: IonBuilder<GarageState>(
+                ion: _garageController,
+                builder: (context, state) => _buildListContent(
+                  state,
+                  colors,
+                  textTheme,
+                  _garageController,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
 
       floatingActionButton: FloatingActionButton(
@@ -159,109 +164,30 @@ class _GaragePageState extends State<GaragePage> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      itemCount: state.filteredVehicles.length,
-      itemBuilder: (context, index) {
-        final vehicle = state.filteredVehicles[index];
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        if (orientation == .landscape) {
+          return GridView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            itemCount: state.filteredVehicles.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 0,
+              childAspectRatio: 3.6,
+            ),
+            itemBuilder: (context, index) {
+              return VehicleCard(vehicle: state.filteredVehicles[index]);
+            },
+          );
+        }
 
-        return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: .circular(16),
-            border: .all(color: colors.primary.withValues(alpha: 0.05)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 90,
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: .circular(6),
-                  border: .all(color: const Color(0xFF003399), width: 2),
-                ),
-                child: Column(
-                  mainAxisSize: .min,
-                  children: [
-                    Container(
-                      height: 4,
-                      width: double.infinity,
-                      color: const Color(0xFF003399),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      vehicle.plate,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontWeight: .bold,
-                        fontSize: 13,
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 16),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: .start,
-                  children: [
-                    Text(
-                      vehicle.model,
-                      style: textTheme.titleMedium,
-                      maxLines: 1,
-                      overflow: .ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${vehicle.brand} - ${vehicle.year}',
-                      style: textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Icon(Icons.speed, size: 14, color: colors.secondary),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${vehicle.currentKm.toStringAsFixed(0)} Km',
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: colors.secondary,
-                            fontWeight: .bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: vehicle.status == 'available'
-                      ? colors.secondary.withValues(alpha: 0.1)
-                      : Colors.orangeAccent.withValues(alpha: 0.1),
-                  borderRadius: .circular(20),
-                ),
-                child: Text(
-                  vehicle.status == 'available' ? 'Disponível' : 'Em Rota',
-                  style: TextStyle(
-                    color: vehicle.status == 'available'
-                        ? colors.secondary
-                        : Colors.orangeAccent,
-                    fontSize: 11,
-                    fontWeight: .bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          itemCount: state.filteredVehicles.length,
+          itemBuilder: (context, index) {
+            return VehicleCard(vehicle: state.filteredVehicles[index]);
+          },
         );
       },
     );
