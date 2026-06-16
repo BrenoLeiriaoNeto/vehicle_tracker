@@ -7,6 +7,8 @@ import 'package:vehicle_tracker/src/core/core_exports.dart';
 import 'package:vehicle_tracker/src/core/di/injection_container.dart';
 import 'package:vehicle_tracker/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:vehicle_tracker/src/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:vehicle_tracker/src/features/profile/presentation/widgets/profile_avatar_hub.dart';
+import 'package:vehicle_tracker/src/features/profile/presentation/widgets/profile_media_buttons.dart';
 
 class ProfileFormPage extends StatefulWidget {
   const ProfileFormPage({super.key});
@@ -137,156 +139,120 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
-
     return Scaffold(
       appBar: AppBar(title: const Text('Editar Perfil'), centerTitle: true),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: colorScheme.primaryContainer,
-                      backgroundImage:
-                          _avatarController.text.trim().isNotEmpty &&
-                              _validateAvatarUrl(_avatarController.text) == null
-                          ? NetworkImage(_avatarController.text.trim())
-                          : null,
-                      onBackgroundImageError:
-                          _avatarController.text.trim().isNotEmpty &&
-                              _validateAvatarUrl(_avatarController.text) == null
-                          ? (exception, stackTrace) {
-                              debugPrint(
-                                'Erro ao carregar imagem de perfil: $exception',
-                              );
-                            }
-                          : null,
-                      child:
-                          _avatarController.text.trim().isEmpty ||
-                              _validateAvatarUrl(_avatarController.text) != null
-                          ? Icon(
-                              Icons.person,
-                              size: 50,
-                              color: colorScheme.onPrimaryContainer,
-                            )
-                          : null,
-                    ),
-                    if (_isUploadingImage)
-                      Positioned.fill(
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.black54,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Formatos suportados: JPG, JPEG, PNG e SVG',
-                style: textTheme.bodySmall?.copyWith(color: theme.hintColor),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
+      body: OrientationBuilder(
+        builder: (context, orientation) {
+          final isLandscape = orientation == .landscape;
 
-              CustomTextFormField(
-                controller: _bioController,
-                labelText: 'Biografia',
-                prefixIcon: Icons.description,
-                textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.text,
-                maxLines: 3,
-                maxLength: 120,
-              ),
-              const SizedBox(height: 16),
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: isLandscape ? _buildLandscapeForm() : _buildPortraitForm(),
+            ),
+          );
+        },
+      ),
+    );
+  }
 
-              CustomTextFormField(
-                controller: _avatarController,
-                labelText: _imageFromDevice
-                    ? 'URL da imagem (dispositivo)'
-                    : 'URL da imagem de perfil',
-                prefixIcon: _imageFromDevice ? Icons.cloud_done : Icons.link,
-                keyboardType: TextInputType.url,
-                validator: _validateAvatarUrl,
-                suffixIcon: _avatarController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _avatarController.clear();
-                          setState(() => _imageFromDevice = false);
-                        },
-                      )
-                    : null,
-              ),
-              const SizedBox(height: 12),
+  Widget _buildPortraitForm() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ProfileAvatarHub(
+          avatarUrl: _avatarController.text.trim(),
+          isUploading: _isUploadingImage,
+          hasValidUrl: _validateAvatarUrl(_avatarController.text) == null,
+        ),
+        const SizedBox(height: 24),
+        _buildFieldsAndActions(),
+      ],
+    );
+  }
 
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _isUploadingImage || _isSaving
-                          ? null
-                          : () => _pickAndUploadImage(ImageSource.camera),
-                      icon: const Icon(Icons.photo_camera, size: 18),
-                      label: const Text('Câmera'),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _isUploadingImage || _isSaving
-                          ? null
-                          : () => _pickAndUploadImage(ImageSource.gallery),
-                      icon: const Icon(Icons.photo_library, size: 18),
-                      label: const Text('Galeria'),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              ElevatedButton(
-                onPressed: _isSaving || _isUploadingImage ? null : _submitForm,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: _isSaving
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text(
-                        'Salvar Alterações',
-                        style: TextStyle(fontSize: 16),
-                      ),
-              ),
-            ],
+  Widget _buildLandscapeForm() {
+    return Row(
+      crossAxisAlignment: .start,
+      children: [
+        SizedBox(
+          width: 150,
+          child: ProfileAvatarHub(
+            avatarUrl: _avatarController.text.trim(),
+            isUploading: _isUploadingImage,
+            hasValidUrl: _validateAvatarUrl(_avatarController.text) == null,
           ),
         ),
-      ),
+
+        const SizedBox(width: 32),
+
+        Expanded(
+          child: SafeArea(
+            top: false,
+            bottom: false,
+            left: true,
+            right: true,
+            child: _buildFieldsAndActions(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFieldsAndActions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        CustomTextFormField(
+          controller: _bioController,
+          labelText: 'Biografia',
+          prefixIcon: Icons.description,
+          textInputAction: TextInputAction.next,
+          keyboardType: TextInputType.text,
+          maxLines: 3,
+          maxLength: 120,
+        ),
+        const SizedBox(height: 16),
+        CustomTextFormField(
+          controller: _avatarController,
+          labelText: _imageFromDevice
+              ? 'URL da imagem (dispositivo)'
+              : 'URL da imagem de perfil',
+          prefixIcon: _imageFromDevice ? Icons.cloud_done : Icons.link,
+          keyboardType: TextInputType.url,
+          validator: _validateAvatarUrl,
+          suffixIcon: _avatarController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _avatarController.clear();
+                    setState(() => _imageFromDevice = false);
+                  },
+                )
+              : null,
+        ),
+        const SizedBox(height: 16),
+        ProfileMediaButtons(
+          isDisabled: _isUploadingImage || _isSaving,
+          onCameraPressed: () => _pickAndUploadImage(ImageSource.camera),
+          onGalleryPressed: () => _pickAndUploadImage(ImageSource.gallery),
+        ),
+        const SizedBox(height: 24),
+        ElevatedButton(
+          onPressed: _isSaving || _isUploadingImage ? null : _submitForm,
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+          ),
+          child: _isSaving
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Salvar Alterações', style: TextStyle(fontSize: 16)),
+        ),
+      ],
     );
   }
 }
