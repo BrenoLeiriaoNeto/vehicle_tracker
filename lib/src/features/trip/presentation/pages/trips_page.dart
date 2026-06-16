@@ -23,7 +23,7 @@ class _TripsPageState extends State<TripsPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_tripController.state.trips == null) {
+      if (_tripController.state.historyTrips.isEmpty) {
         _tripController.getMyTrips();
       }
     });
@@ -61,11 +61,10 @@ class _TripsPageState extends State<TripsPage> {
               child: IonBuilder<TripState>(
                 ion: _tripController,
                 builder: (context, state) {
-                  if (state.isLoading &&
-                      (state.trips == null || state.trips!.isEmpty)) {
+                  if (state.isLoading && (state.historyTrips.isEmpty)) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  final trips = _getFilteredList(state.trips ?? []);
+                  final trips = _getFilteredList(state.historyTrips);
 
                   if (trips.isEmpty) return _buildEmptyState(theme);
 
@@ -132,7 +131,7 @@ class _TripsPageState extends State<TripsPage> {
   Widget _buildEmptyState(ThemeData theme) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: const EdgeInsets.all(28.0),
         child: Column(
           mainAxisAlignment: .center,
           children: [
@@ -145,14 +144,6 @@ class _TripsPageState extends State<TripsPage> {
             Text(
               'Nenhuma viagem encontrada',
               style: theme.textTheme.titleMedium,
-              textAlign: .center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _selectedFilter == null
-                  ? 'Comece criando uma nova rota no botão abaixo!'
-                  : 'Nenhuma viagem corresponde ao filtro selecionado.',
-              style: theme.textTheme.bodyMedium,
               textAlign: .center,
             ),
           ],

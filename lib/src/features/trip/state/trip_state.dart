@@ -4,7 +4,8 @@ class TripState {
   final TripStatus status;
   final TripVehicleState vehicleState;
   final Trip? trip;
-  final List<Trip>? trips;
+  final List<Trip> activeTrips;
+  final List<Trip> historyTrips;
   final String? errorMessage;
   final bool isLoading;
 
@@ -12,19 +13,26 @@ class TripState {
     required this.status,
     required this.vehicleState,
     this.trip,
-    this.trips,
+    this.activeTrips = const [],
+    this.historyTrips = const [],
     this.errorMessage,
     this.isLoading = false,
   });
 
-  factory TripState.initial() =>
-      TripState(status: .pending, vehicleState: .parked, isLoading: false);
+  factory TripState.initial() => TripState(
+    status: .pending,
+    vehicleState: .parked,
+    isLoading: false,
+    activeTrips: [],
+    historyTrips: [],
+  );
 
   TripState copyWith({
     TripStatus? status,
     TripVehicleState? vehicleState,
     Trip? trip,
-    List<Trip>? trips,
+    List<Trip>? activeTrips,
+    List<Trip>? historyTrips,
     String? errorMessage,
     bool? isLoading,
   }) {
@@ -32,7 +40,8 @@ class TripState {
       status: status ?? this.status,
       vehicleState: vehicleState ?? this.vehicleState,
       trip: trip ?? this.trip,
-      trips: trips ?? this.trips,
+      activeTrips: activeTrips ?? this.activeTrips,
+      historyTrips: historyTrips ?? this.historyTrips,
       errorMessage: errorMessage ?? this.errorMessage,
       isLoading: isLoading ?? this.isLoading,
     );

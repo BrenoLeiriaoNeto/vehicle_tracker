@@ -29,27 +29,43 @@ class TripController extends Ion<TripState> {
     _simulationTimer?.cancel();
 
     _simulationTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      final activeTrip = state.trip;
+      final activeTrips = state.activeTrips;
 
-      if (activeTrip == null || state.status != .inProgress) {
+      if (activeTrips.isEmpty) {
         timer.cancel();
+        _simulationTimer = null;
         return;
       }
 
-      final tripModel = TripModel.fromEntity(activeTrip);
+      final List<Trip> updatedTrips = [];
 
-      final double totalKm = tripModel.totalDistance;
-      final double nextKm = tripModel.currentKm + 10.0;
+      for (final trip in activeTrips) {
+        final tripModel = TripModel.fromEntity(trip);
+        final double totalKm = tripModel.totalDistance;
+        final double nextKm = tripModel.currentKm + 10.0;
 
-      if (nextKm >= totalKm) {
-        timer.cancel();
+        if (nextKm >= totalKm) {
+          _completeTripUsecase(
+            tripModel.id,
+            DateTime.now(),
+            totalKm,
+          ).catchError(
+            (e) => throw Exception('Deu algum erro ao finalizar a viagem: $e'),
+          );
+        } else {
+          final updatedTrip = tripModel.copyWith(
+            currentKm: nextKm,
+            vehicleState: .moving,
+          );
+          updatedTrips.add(updatedTrip);
 
-        completeTrip(tripModel.id, DateTime.now(), totalKm);
-      } else {
-        final updatedTripModel = tripModel.copyWith(currentKm: nextKm);
-
-        set(state.copyWith(trip: updatedTripModel, vehicleState: .moving));
+          _updateTripUsecase(tripModel.id, nextKm, .moving).catchError(
+            (e) => throw Exception('Erro ao atualizar a viagem: $e'),
+          );
+        }
       }
+
+      set(state.copyWith(activeTrips: updatedTrips));
     });
   }
 
@@ -93,31 +109,16 @@ class TripController extends Ion<TripState> {
     try {
       final activeTrips = await _getInProgressTripsUsecase(userId);
 
-      if (activeTrips.isNotEmpty) {
-        final activeTrip = activeTrips.first;
+      set(
+        state.copyWith(
+          activeTrips: activeTrips,
+          isLoading: false,
+          errorMessage: null,
+        ),
+      );
 
-        set(
-          state.copyWith(
-            trip: activeTrip,
-            status: activeTrip.status,
-            vehicleState: activeTrip.vehicleState,
-            isLoading: false,
-            errorMessage: null,
-          ),
-        );
-
-        if (_simulationTimer == null) {
-          startLocalSimulation();
-        }
-      } else {
-        set(
-          state.copyWith(
-            trip: null,
-            status: .pending,
-            vehicleState: .parked,
-            isLoading: false,
-          ),
-        );
+      if (activeTrips.isNotEmpty && _simulationTimer == null) {
+        startLocalSimulation();
       }
     } catch (e) {
       set(state.copyWith(errorMessage: e.toString(), isLoading: false));
@@ -171,7 +172,7 @@ class TripController extends Ion<TripState> {
     try {
       final trips = await _getTrips();
 
-      set(state.copyWith(trips: trips, isLoading: false));
+      set(state.copyWith(historyTrips: trips, isLoading: false));
     } catch (e) {
       set(state.copyWith(errorMessage: e.toString(), isLoading: false));
     }
