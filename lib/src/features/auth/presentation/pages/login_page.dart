@@ -95,13 +95,13 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               crossAxisAlignment: .stretch,
               children: [
-                const Spacer(flex: 2),
+                const Spacer(flex: 1),
                 _buildBranding(theme, textTheme, isLandscape: false),
-                const Spacer(flex: 2),
+                const Spacer(flex: 1),
                 _buildFormFields(theme, state),
-                const Spacer(flex: 3),
+                const Spacer(flex: 2),
                 _buildFooter(theme, textTheme),
-                const SizedBox(height: 16),
+                const Spacer(flex: 1),
               ],
             ),
           ),
