@@ -174,7 +174,7 @@ class _GaragePageState extends State<GaragePage> {
               crossAxisCount: 2,
               crossAxisSpacing: 16,
               mainAxisSpacing: 0,
-              childAspectRatio: 3.6,
+              childAspectRatio: 2.8,
             ),
             itemBuilder: (context, index) {
               return VehicleCard(vehicle: state.filteredVehicles[index]);

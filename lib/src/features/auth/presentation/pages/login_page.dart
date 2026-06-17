@@ -269,8 +269,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildFooter(ThemeData theme, TextTheme textTheme) {
-    return Row(
-      mainAxisAlignment: .center,
+    return Wrap(
+      alignment: .center,
+      crossAxisAlignment: .center,
       children: [
         Text('Não tem uma conta?', style: textTheme.bodyMedium),
         TextButton(

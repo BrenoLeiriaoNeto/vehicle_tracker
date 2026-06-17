@@ -319,8 +319,9 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   Widget _buildFooter(ThemeData theme, TextTheme textTheme) {
-    return Row(
-      mainAxisAlignment: .center,
+    return Wrap(
+      alignment: .center,
+      crossAxisAlignment: .center,
       children: [
         Text('Já possui uma conta?', style: textTheme.bodyMedium),
         TextButton(
