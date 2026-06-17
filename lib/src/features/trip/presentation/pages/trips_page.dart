@@ -23,7 +23,7 @@ class _TripsPageState extends State<TripsPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_tripController.state.trips == null) {
+      if (_tripController.state.historyTrips.isEmpty) {
         _tripController.getMyTrips();
       }
     });
@@ -46,37 +46,41 @@ class _TripsPageState extends State<TripsPage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          TripFilterSection(
-            selectedFilter: _selectedFilter,
-            onFilterChanged: (newFilter) {
-              setState(() => _selectedFilter = newFilter);
-            },
-          ),
-          Expanded(
-            child: IonBuilder<TripState>(
-              ion: _tripController,
-              builder: (context, state) {
-                if (state.isLoading &&
-                    (state.trips == null || state.trips!.isEmpty)) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final trips = _getFilteredList(state.trips ?? []);
-
-                if (trips.isEmpty) return _buildEmptyState(theme);
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: trips.length,
-                  itemBuilder: (context, index) {
-                    return TripHistoryCard(trip: trips[index]);
-                  },
-                );
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: Column(
+          children: [
+            TripFilterSection(
+              selectedFilter: _selectedFilter,
+              onFilterChanged: (newFilter) {
+                setState(() => _selectedFilter = newFilter);
               },
             ),
-          ),
-        ],
+            Expanded(
+              child: IonBuilder<TripState>(
+                ion: _tripController,
+                builder: (context, state) {
+                  if (state.isLoading && (state.historyTrips.isEmpty)) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final trips = _getFilteredList(state.historyTrips);
+
+                  if (trips.isEmpty) return _buildEmptyState(theme);
+
+                  return OrientationBuilder(
+                    builder: (context, orientation) {
+                      if (orientation == .landscape) {
+                        return _buildLandscapeGrid(trips);
+                      }
+                      return _buildPortraitList(trips);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'fab_trips',
@@ -93,6 +97,32 @@ class _TripsPageState extends State<TripsPage> {
     );
   }
 
+  Widget _buildPortraitList(List<Trip> trips) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: trips.length,
+      itemBuilder: (context, index) {
+        return TripHistoryCard(trip: trips[index]);
+      },
+    );
+  }
+
+  Widget _buildLandscapeGrid(List<Trip> trips) {
+    return GridView.builder(
+      padding: const EdgeInsets.only(left: 12.0),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 2.8,
+      ),
+      itemCount: trips.length,
+      itemBuilder: (context, index) {
+        return TripHistoryCard(trip: trips[index]);
+      },
+    );
+  }
+
   List<Trip> _getFilteredList(List<Trip> trips) {
     if (_selectedFilter == null) return trips;
     return trips.where((t) => t.status == _selectedFilter).toList();
@@ -101,7 +131,7 @@ class _TripsPageState extends State<TripsPage> {
   Widget _buildEmptyState(ThemeData theme) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: const EdgeInsets.all(28.0),
         child: Column(
           mainAxisAlignment: .center,
           children: [
@@ -114,14 +144,6 @@ class _TripsPageState extends State<TripsPage> {
             Text(
               'Nenhuma viagem encontrada',
               style: theme.textTheme.titleMedium,
-              textAlign: .center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _selectedFilter == null
-                  ? 'Comece criando uma nova rota no botão abaixo!'
-                  : 'Nenhuma viagem corresponde ao filtro selecionado.',
-              style: theme.textTheme.bodyMedium,
               textAlign: .center,
             ),
           ],

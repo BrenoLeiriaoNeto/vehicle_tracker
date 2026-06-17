@@ -80,7 +80,7 @@ void main() {
 
       await controller.getMyTrips();
 
-      expect(controller.state.trips, trips);
+      expect(controller.state.historyTrips, trips);
       expect(controller.state.isLoading, isFalse);
     });
 

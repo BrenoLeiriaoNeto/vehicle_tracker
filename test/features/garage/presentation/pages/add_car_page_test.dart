@@ -73,7 +73,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Adicionar Veículo'), findsOneWidget);
-    expect(find.text('Seleciona a marca'), findsOneWidget);
+    expect(find.text('Selecione a marca'), findsOneWidget);
     expect(find.text('Salvar veículo'), findsOneWidget);
 
     await tester.tap(find.text('Salvar veículo'));

@@ -76,59 +76,171 @@ class _ProfilePageState extends State<ProfilePage> {
 
           final userName = _authController.state.user?.name ?? 'Usuário';
 
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: profile.avatarUrl?.isNotEmpty == true
-                      ? NetworkImage(profile.avatarUrl ?? '')
-                      : const AssetImage('assets/images/CP avatar.jpg')
-                            as ImageProvider,
-                ),
-                const SizedBox(height: 12),
-                Text(
+          return OrientationBuilder(
+            builder: (context, orientation) {
+              if (orientation == .landscape) {
+                return _buildLandscapeProfile(
+                  context,
+                  profile,
                   userName,
-                  style: textTheme.titleLarge?.copyWith(fontWeight: .bold),
-                ),
-                Text(
-                  profile.bio ?? 'Nenhuma bio definida ainda.',
-                  style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-
-                ElevatedButton.icon(
-                  onPressed: () => context.go('/profile/edit'),
-                  label: const Text('Editar Perfil'),
-                  icon: Icon(Icons.edit),
-                ),
-
-                const Divider(height: 40),
-
-                Row(
-                  children: [
-                    _buildMetricsCard(
-                      context,
-                      'Carros',
-                      '${profile.totalVehicles}',
-                    ),
-                    _buildMetricsCard(
-                      context,
-                      'Viagens',
-                      '${profile.tripsCompleted}',
-                    ),
-                    _buildMetricsCard(
-                      context,
-                      'Km Rodados',
-                      profile.sumKilometers.toStringAsFixed(0),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  textTheme,
+                );
+              }
+              return _buildPortraitProfile(
+                context,
+                profile,
+                userName,
+                textTheme,
+              );
+            },
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildPortraitProfile(
+    BuildContext context,
+    dynamic profile,
+    String userName,
+    TextTheme textTheme,
+  ) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 50,
+            backgroundImage: profile.avatarUrl?.isNotEmpty == true
+                ? NetworkImage(profile.avatarUrl ?? '')
+                : const AssetImage('assets/images/CP avatar.jpg')
+                      as ImageProvider,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            userName,
+            style: textTheme.titleLarge?.copyWith(fontWeight: .bold),
+          ),
+          Text(
+            profile.bio ?? 'Nenhuma bio definida ainda.',
+            style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
+          ),
+          const SizedBox(height: 16),
+
+          ElevatedButton.icon(
+            onPressed: () => context.go('/profile/edit'),
+            label: const Text('Editar Perfil'),
+            icon: Icon(Icons.edit),
+          ),
+
+          const Divider(height: 40),
+
+          Row(
+            children: [
+              _buildMetricsCard(context, 'Carros', '${profile.totalVehicles}'),
+              _buildMetricsCard(
+                context,
+                'Viagens',
+                '${profile.tripsCompleted}',
+              ),
+              _buildMetricsCard(
+                context,
+                'Km Rodados',
+                profile.sumKilometers.toStringAsFixed(0),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLandscapeProfile(
+    BuildContext context,
+    dynamic profile,
+    String userName,
+    TextTheme textTheme,
+  ) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+      child: SafeArea(
+        top: false,
+        bottom: false,
+        right: true,
+        left: true,
+        child: Row(
+          crossAxisAlignment: .start,
+          children: [
+            SizedBox(
+              width: 200,
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: profile.avatarUrl?.isNotEmpty == true
+                        ? NetworkImage(profile.avatarUrl ?? '')
+                        : const AssetImage('assets/images/CP avatar.jpg')
+                              as ImageProvider,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    userName,
+                    style: textTheme.titleLarge?.copyWith(fontWeight: .bold),
+                    textAlign: .center,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    profile.bio ?? 'Nenhuma bio definida ainda.',
+                    style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                    textAlign: .center,
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(width: 24),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: .stretch,
+                children: [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: ElevatedButton.icon(
+                      onPressed: () => context.go('/profile/edit'),
+                      label: const Text('Editar Perfil'),
+                      icon: const Icon(Icons.edit),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  Row(
+                    children: [
+                      _buildMetricsCard(
+                        context,
+                        'Carros',
+                        '${profile.totalVehicles}',
+                      ),
+                      const SizedBox(width: 8),
+                      _buildMetricsCard(
+                        context,
+                        'Viagens',
+                        '${profile.tripsCompleted}',
+                      ),
+                      const SizedBox(width: 8),
+                      _buildMetricsCard(
+                        context,
+                        'Km Rodados',
+                        profile.sumKilometers.toStringAsFixed(0),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
