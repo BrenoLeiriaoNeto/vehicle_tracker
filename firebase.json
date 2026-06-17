@@ -1,0 +1,25 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "vehicle-tracker-breno",
+          "appId": "1:69532289664:android:e6bd355dd3f1789c117465",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "vehicle-tracker-breno",
+          "configurations": {
+            "android": "1:69532289664:android:e6bd355dd3f1789c117465",
+            "ios": "1:69532289664:ios:472990a69da55192117465",
+            "macos": "1:69532289664:ios:472990a69da55192117465",
+            "web": "1:69532289664:web:240ca4e65ddbe753117465",
+            "windows": "1:69532289664:web:aa30fb63c95e930f117465"
+          }
+        }
+      }
+    }
+  }
+}
