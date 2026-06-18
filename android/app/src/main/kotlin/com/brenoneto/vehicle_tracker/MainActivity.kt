@@ -1,4 +1,4 @@
-package com.example.vehicle_tracker
+package com.brenoneto.vehicle_tracker
 
 import io.flutter.embedding.android.FlutterActivity
 
